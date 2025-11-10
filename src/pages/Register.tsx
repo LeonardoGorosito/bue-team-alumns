@@ -1,7 +1,7 @@
-import { useForm, Controller } from 'react-hook-form' // <-- Importamos Controller
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Select from 'react-select' // <-- Componente Select para multi-select
+import Select from 'react-select'
 import { Input } from '../components/Input'
 import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext'
@@ -15,11 +15,14 @@ const MASTER_OPTIONS = [
     { value: 'master_ciberseguridad_total', label: 'Máster Ciberseguridad Total' },
 ];
 
+// 1. Definición del Esquema de Validación
 const schema = z.object({
   name: z.string().min(2, 'El nombre completo es obligatorio y debe tener al menos 2 caracteres'),
   lastname: z.string().min(2, 'El apellido es obligatorio'),
   telegram: z.string().regex(/^@?(\w){5,}/, 'El usuario de Telegram no es válido (ej: @miusuario)'),
-  age: z.number().min(18, 'Debes ser mayor de 18 años').max(100, 'Edad inválida').optional().nullable().transform(e => e === null ? undefined : e),
+  
+  // Campo 'age': Usamos z.coerce.number().optional() para la entrada opcional del tipo number
+  age: z.coerce.number().min(18, 'Debes ser mayor de 18 años').max(100, 'Edad inválida').optional(), 
   
   // Campo Master: Array de strings (para selección múltiple)
   master: z.array(z.string()).min(1, 'Debes seleccionar al menos una Máster adquirida'), 
@@ -32,10 +35,14 @@ const schema = z.object({
   path: ['passwordConfirm'],
 });
 
-type FormData = z.infer<typeof schema>
+// 2. Tipado de FormData CORREGIDO
+// Forzamos el tipo 'age' a ser compatible con react-hook-form para evitar el error del Resolver.
+type FormData = z.infer<typeof schema> & {
+    age?: number | undefined; 
+};
+
 
 export default function Register() {
-  // Renombramos 'register' para evitar colisión con react-hook-form
   const { register: registerUser } = useAuth() 
   const nav = useNavigate()
   
@@ -43,8 +50,8 @@ export default function Register() {
     register, 
     handleSubmit, 
     formState: { errors, isSubmitting },
-    control // <-- Objeto de control necesario para Controller
-  } = useForm<FormData>({ 
+    control // Objeto de control necesario para el Select
+  } = useForm<FormData>({ // Usamos el tipo FormData corregido
     resolver: zodResolver(schema),
     defaultValues: { age: undefined, master: [] }, 
     mode: 'onBlur', 
@@ -52,7 +59,7 @@ export default function Register() {
 
   const onSubmit = async (d: FormData) => {
     try { 
-      // La propiedad 'd.master' es ahora un array de strings gracias al Controller
+      // La propiedad 'd.master' es un array de strings, listo para ser enviado
       await registerUser(d.name, d.lastname, d.age, d.telegram, d.master, d.email, d.password)
       
       toast.success('Registro exitoso. ¡Bienvenid@!')
@@ -116,7 +123,7 @@ export default function Register() {
                   <Input 
                       type="number" 
                       {...register('age', { 
-                          valueAsNumber: true, 
+                          valueAsNumber: true, // Asegura que el input se convierta a number
                       })} 
                       placeholder="25" 
                   />
@@ -130,21 +137,20 @@ export default function Register() {
                   </label>
                   
                   <Controller
-                      name="master" // Campo a controlar
+                      name="master" 
                       control={control}
                       render={({ field }) => (
                           <Select
                               {...field}
                               isMulti // Habilita la selección múltiple
                               options={MASTER_OPTIONS}
-                              // Manejo de valores para que react-hook-form reciba el array de strings
+                              // Transformación para que react-hook-form reciba el array de strings
                               onChange={(selectedOptions) => {
                                   field.onChange(selectedOptions.map(option => option.value));
                               }}
                               // Muestra los valores seleccionados como objetos
                               value={MASTER_OPTIONS.filter(option => field.value?.includes(option.value))}
                               
-                              // Estilos de React-Select con prefijo (puedes estilizarlos con CSS)
                               classNamePrefix="react-select"
                               className={`mt-1 text-sm ${errors.master ? 'border border-red-500 rounded-md' : ''}`}
                               placeholder="Selecciona una o más..."
