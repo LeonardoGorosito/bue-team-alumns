@@ -10,9 +10,9 @@ import { toast } from 'sonner'
 
 // Opciones de las Master para react-select (formato { value, label })
 const MASTER_OPTIONS = [
-    { value: 'master_blue_team', label: 'Máster Blue Team' }, 
-    { value: 'master_hacking_etico', label: 'Máster Hacking Ético' },
-    { value: 'master_ciberseguridad_total', label: 'Máster Ciberseguridad Total' },
+    { value: 'fansly', label: 'Máster Fansly' }, 
+    { value: 'fetiches', label: 'Máster Fetiches' },
+    { value: 'master_Clientes', label: 'Máster Clientes' },
 ];
 
 // 1. Definición del Esquema de Validación

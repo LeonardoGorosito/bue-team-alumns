@@ -11,6 +11,7 @@ import Checkout from '../pages/Checkout'
 import ProtectedRoute from '../components/ProtectedRoute'
 import MainLayout from '../components/MainLayout'
 import { useAuth } from '../context/AuthContext'
+import Courses from '../pages/Courses'
 
 
 /**
@@ -59,6 +60,7 @@ return (
       
       {/* Área privada (requiere autenticación) */}
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+        <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
       <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
       <Route path="/failure" element={<ProtectedRoute><Failure /></ProtectedRoute>} />
