@@ -108,15 +108,18 @@ export default function Register() {
             {errors.email && (<p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>)}
           </div>
           
-          {/* Telegram */}
-          <div>
+          
+
+          {/* Edad y Master (Multi-Select Desplegable) */}
+          <div className="grid grid-cols-2 gap-4">
+
+              {/* Telegram */}
+
+              <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Usuario de Telegram (@)</label>
             <Input type="text" {...register('telegram')} placeholder="@usuario_telegram" />
             {errors.telegram && (<p className="mt-1.5 text-xs text-red-600">{errors.telegram.message}</p>)}
           </div>
-
-          {/* Edad y Master (Multi-Select Desplegable) */}
-          <div className="grid grid-cols-2 gap-4">
               {/* Edad */}
               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Edad</label>
@@ -130,7 +133,10 @@ export default function Register() {
                   {errors.age && (<p className="mt-1.5 text-xs text-red-600">{errors.age.message}</p>)}
               </div>
               
-              {/* Master Adquirida (Multi-Select con Controller) */}
+              
+          </div>
+
+          {/* Master Adquirida (Multi-Select con Controller) */}
               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                       ¿Qué **Máster** adquiriste?
@@ -161,7 +167,6 @@ export default function Register() {
                   {errors.master && (<p className="mt-1.5 text-xs text-red-600">{errors.master.message}</p>)}
                   
               </div>
-          </div>
           
           {/* Contraseñas */}
           <div>
