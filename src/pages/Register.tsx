@@ -1,6 +1,8 @@
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form' // Importamos SubmitHandler
+import type { SubmitHandler } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { Resolver } from 'react-hook-form';
 import Select from 'react-select'
 import { Input } from '../components/Input'
 import Button from '../components/Button'
@@ -15,49 +17,63 @@ const MASTER_OPTIONS = [
     { value: 'master_Clientes', label: 'Máster Clientes' },
 ];
 
-// 1. Definición del Esquema de Validación
 const schema = z.object({
   name: z.string().min(2, 'El nombre completo es obligatorio y debe tener al menos 2 caracteres'),
   lastname: z.string().min(2, 'El apellido es obligatorio'),
   telegram: z.string().regex(/^@?(\w){5,}/, 'El usuario de Telegram no es válido (ej: @miusuario)'),
   
-  // Campo 'age': Usamos z.coerce.number().optional() para la entrada opcional del tipo number
+  // No tocamos 'age', estaba bien.
   age: z.coerce.number().min(18, 'Debes ser mayor de 18 años').max(100, 'Edad inválida').optional(), 
   
-  // Campo Master: Array de strings (para selección múltiple)
   master: z.array(z.string()).min(1, 'Debes seleccionar al menos una Máster adquirida'), 
 
   email: z.string().email('Ingresa un email válido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   passwordConfirm: z.string().min(6, 'Debes confirmar la contraseña'),
-}).refine(data => data.password === data.passwordConfirm, {
-  message: 'Las contraseñas no coinciden',
-  path: ['passwordConfirm'],
+})
+.superRefine(({ password, passwordConfirm }, ctx) => { // <-- ¡LA CORRECCIÓN!
+  if (password !== passwordConfirm) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Las contraseñas no coinciden",
+      path: ['passwordConfirm'] // El campo que mostrará el error
+    });
+  }
 });
+// -------------------------
 
 // 2. Tipado de FormData CORREGIDO
-// Forzamos el tipo 'age' a ser compatible con react-hook-form para evitar el error del Resolver.
-type FormData = z.infer<typeof schema> & {
-    age?: number | undefined; 
-};
+// Renombramos 'FormData' (que es un nombre reservado del navegador) a 'RegisterFormData'
+type RegisterFormData = z.infer<typeof schema>;// correctamente desde el '.optional()' de tu esquema Zod.
 
 
 export default function Register() {
   const { register: registerUser } = useAuth() 
   const nav = useNavigate()
   
-  const { 
-    register, 
-    handleSubmit, 
-    formState: { errors, isSubmitting },
-    control // Objeto de control necesario para el Select
-  } = useForm<FormData>({ // Usamos el tipo FormData corregido
-    resolver: zodResolver(schema),
-    defaultValues: { age: undefined, master: [] }, 
-    mode: 'onBlur', 
-  })
+  const {
+  register,
+  handleSubmit,
+  formState: { errors, isSubmitting },
+  control,
+} = useForm<RegisterFormData>({
+  resolver: zodResolver(schema) as Resolver<RegisterFormData>,
+  defaultValues: {
+    name: '',
+    lastname: '',
+    telegram: '',
+    age: undefined,
+    master: [],
+    email: '',
+    password: '',
+    passwordConfirm: '',
+  },
+  mode: 'onBlur',
+});
 
-  const onSubmit = async (d: FormData) => {
+
+  // Usamos SubmitHandler para un tipado más estricto y correcto
+  const onSubmit: SubmitHandler<RegisterFormData> = async (d) => { // <-- USAMOS EL NUEVO TIPO
     try { 
       // La propiedad 'd.master' es un array de strings, listo para ser enviado
       await registerUser(d.name, d.lastname, d.age, d.telegram, d.master, d.email, d.password)
