@@ -64,6 +64,7 @@ return (
       <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
       <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
       <Route path="/failure" element={<ProtectedRoute><Failure /></ProtectedRoute>} />
+      
 
       {/* CRM solo admin (requiere autenticación Y rol ADMIN) */}
       <Route path="/admin/orders" element={<ProtectedRoute roles={["ADMIN"]}><AdminOrders /></ProtectedRoute>} />

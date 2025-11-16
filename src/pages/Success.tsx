@@ -16,23 +16,35 @@ export default function Success() {
   const config = methodKey ? PAYMENT_METHODS[methodKey] : null
 
   // Función para subir el archivo
+  // Reemplaza tu función handleFileUpload con esta:
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !orderId) return
+    
+    // 1. Verificación: ¿Existe el archivo y la orden?
+    if (!file || !orderId) {
+      toast.error("No se seleccionó un archivo o la orden no es válida.")
+      return
+    }
 
+    // 2. Creamos el FormData
     const formData = new FormData()
-    formData.append('file', file) // 'file' debe coincidir con lo que espera Fastify
+    formData.append('file', file) // La llave 'file' es la que espera req.file()
 
     setUploading(true)
     try {
-      // Llamamos a la ruta que creamos recién
-      await api.post(`/orders/${orderId}/receipt`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      
+      // 3. LA LLAMADA A LA API (¡EL PUNTO CLAVE!)
+      // Fíjate bien: NO hay un objeto '{ headers: ... }'
+      // Axios pone los headers correctos (con el 'boundary') automáticamente
+      // si solo le pasas el formData.
+      
+      await api.post(`/orders/${orderId}/receipt`, formData) 
+      
       toast.success('¡Comprobante enviado! Lo revisaremos pronto.')
       setFileSent(true)
+
     } catch (error) {
-      console.error(error)
+      console.error(error) // Mantenemos el log para ver errores
       toast.error('Error al subir el comprobante')
     } finally {
       setUploading(false)
