@@ -1,92 +1,169 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const [isOpen, setIsOpen] = useState(false) // Estado para el menú móvil
+
+  // Función para cerrar el menú al hacer clic
+  const closeMenu = () => setIsOpen(false)
+
+  // Helper para las clases de NavLink (así se marca el link activo)
+  const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+      isActive
+        ? 'bg-blue-600 text-white'
+        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+    }`
   
+  // Clases para el menú desplegable (móvil)
+  const getMobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `block px-3 py-2 rounded-lg text-base font-medium ${
+    isActive
+      ? 'bg-blue-600 text-white'
+      : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50' // <-- 
+  }`
+
   return (
     <nav className="bg-white border-b border-blue-100 shadow-sm sticky top-0 z-50">
-      <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-        {/* Logo y marca */}
-        <Link 
-          to="/" 
-          className="flex items-center space-x-2 group"
-        >
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-            <img className="w-6 h-6 text-white" src="./public/img/logo-blu_7eam.png" alt="Logo" />
-          </div>
-          <span className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
-            Blue 7eam
-          </span>
-        </Link>
-
-        {/* Links de navegación */}
-        <div className="flex items-center gap-2">
-          {/* Link Masters */}
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="flex items-center justify-between h-16">
+          
+          {/* --- 1. LOGO (Izquierda) --- */}
           <Link 
-            to="/courses" 
-            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+            to="/" 
+            className="flex items-center space-x-2 group"
+            onClick={closeMenu}
           >
-            Masters
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+              {/* Ajusta la ruta a tu logo si es necesario */}
+              <img className="w-6 h-6" src="/img/logo-blu_7eam.png" alt="Logo" />
+            </div>
+            <span className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
+              Blue 7eam
+            </span>
           </Link>
 
-          {/* Link CRM solo para admin */}
-          {user?.role === 'ADMIN' && (
-            <Link 
-              to="/admin/orders" 
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all flex items-center"
+          {/* --- 2. LINKS DE NAVEGACIÓN (Centro / Desktop) --- */}
+          {/* Esto se oculta en móvil (hidden) y se muestra en desktop (md:flex) */}
+          <div className="hidden md:flex items-center gap-2">
+            <NavLink 
+              to="/courses" 
+              className={getNavLinkClass}
             >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              CRM
-            </Link>
-          )}
+              Masters
+            </NavLink>
 
-          {/* Separador */}
-          <div className="w-px h-6 bg-gray-300 mx-2"></div>
-
-          {/* Usuario autenticado */}
-          {user ? (
-            <div className="flex items-center gap-2">
-              {/* Avatar y nombre */}
-              <Link 
-                to="/account" 
-                className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-              >
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">
-                    {user.email?.[0]?.toUpperCase() || 'U'}
-                  </span>
-                </div>
-                <span className="hidden md:inline">Mi cuenta</span>
-              </Link>
-
-              {/* Botón salir */}
-              <button 
-                onClick={logout}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all flex items-center"
+            {user?.role === 'ADMIN' && (
+              <NavLink 
+                to="/admin/orders" 
+                className={getNavLinkClass}
               >
                 <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                <span className="hidden md:inline">Salir</span>
-              </button>
-            </div>
-          ) : (
-            /* Botón ingresar */
-            <Link 
-              to="/login" 
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm hover:shadow-md flex items-center"
+                CRM
+              </NavLink>
+            )}
+          </div>
+
+          {/* --- 3. LOGIN / USUARIO (Derecha / Desktop) --- */}
+          {/* Oculto en móvil (hidden), visible en desktop (md:flex) */}
+          <div className="hidden md:flex items-center gap-2">
+            {user ? (
+              <>
+                <NavLink 
+                  to="/account" 
+                  className={getNavLinkClass}
+                >
+                  <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-white text-xs font-bold">
+                      {user.email?.[0]?.toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                  Mi cuenta
+                </NavLink>
+                <button 
+                  onClick={logout}
+                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Salir
+                </button>
+              </>
+            ) : (
+              <Link 
+                to="/login" 
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
+              >
+                Ingresar
+              </Link>
+            )}
+          </div>
+
+          {/* --- 4. BOTÓN HAMBURGUESA (Móvil) --- */}
+          {/* Visible en móvil (flex), oculto en desktop (md:hidden) */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-blue-100"
+              aria-expanded={isOpen}
             >
-              <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-              </svg>
-              Ingresar
-            </Link>
-          )}
+              {isOpen ? (
+                <svg className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* --- 5. MENÚ DESPLEGABLE (Móvil) --- */}
+      {/* Se muestra solo si isOpen es true */}
+      {isOpen && (
+        <div className="md:hidden bg-white shadow-lg absolute top-16 left-0 w-full z-40 border-t border-gray-100">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <NavLink to="/courses" className={getMobileNavLinkClass} onClick={closeMenu}>
+              Masters
+            </NavLink>
+            
+            {user?.role === 'ADMIN' && (
+              <NavLink to="/admin/orders" className={getMobileNavLinkClass} onClick={closeMenu}>
+                CRM
+              </NavLink>
+            )}
+
+            {user ? (
+              <>
+                <NavLink to="/account" className={getMobileNavLinkClass} onClick={closeMenu}>
+                  Mi Cuenta
+                </NavLink>
+                <button
+                  onClick={() => {
+                    logout();
+                    closeMenu();
+                  }}
+                  className="block w-full text-left px-3 py-2 rounded-lg text-base font-medium text-red-600 hover:bg-red-50"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <NavLink to="/login" className={getMobileNavLinkClass} onClick={closeMenu}>
+                Ingresar
+              </NavLink>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   )
 }
