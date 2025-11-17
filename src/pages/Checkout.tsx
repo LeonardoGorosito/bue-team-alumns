@@ -46,6 +46,7 @@ export default function Checkout() {
 
     try {
       // 1. Crear la orden en el Backend
+      // Esta es la línea que probablemente causa el 400
       const { data: order } = await api.post('/orders', { 
         ...data, 
         courseSlug: course 
@@ -64,7 +65,8 @@ export default function Checkout() {
       }
 
     } catch (e: any) {
-      console.error(e)
+      // Esta es la línea 67
+      console.error(e) 
       toast.error(e?.response?.data?.message || 'Error creando la orden')
     }
   }
