@@ -43,10 +43,11 @@ export default function Success() {
       toast.success('¡Comprobante enviado! Lo revisaremos pronto.')
       setFileSent(true)
 
-    } catch (error) {
-      console.error(error) // Mantenemos el log para ver errores
-      toast.error('Error al subir el comprobante')
-    } finally {
+    } catch (error: any) {
+  console.error(error)
+  const msg = error?.response?.data?.message || 'Error al subir el comprobante'
+  toast.error(msg)
+} finally {
       setUploading(false)
     }
   }
