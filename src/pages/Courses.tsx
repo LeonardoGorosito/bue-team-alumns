@@ -11,9 +11,12 @@ export interface Course {
   slug: string
   title: string
   desc: string
-  price: number
+  price: number     // Precio ARS
+  priceUsd: number  // Precio USD (Nuevo)
   currency: string
   isActive: boolean
+  longDescription?: string 
+  learningPoints?: string[]
 }
 
 export const fetchCourses = async (): Promise<Course[]> => {
@@ -159,9 +162,16 @@ export default function Courses() {
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200 gap-3">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Precio total</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {c.currency} ${c.price.toLocaleString('es-AR')}
-                    </p>
+                    <div className="flex flex-col">
+                      {/* PRECIO EN PESOS */}
+                      <span className="text-2xl font-bold text-blue-600">
+                        ARS ${c.price.toLocaleString('es-AR')}
+                      </span>
+                      {/* PRECIO EN DOLARES */}
+                      <span className="text-sm font-medium text-gray-500">
+                        o USD ${c.priceUsd}
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="flex gap-2">

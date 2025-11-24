@@ -1,8 +1,7 @@
-import { useForm, Controller } from 'react-hook-form' // Importamos SubmitHandler
-import type { SubmitHandler } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
+import type { SubmitHandler, Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Resolver } from 'react-hook-form';
 import Select from 'react-select'
 import { Input } from '../components/Input'
 import Button from '../components/Button'
@@ -10,74 +9,78 @@ import { useAuth } from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
-// Opciones de las Master para react-select (formato { value, label })
-const MASTER_OPTIONS = [
-    { value: 'fansly', label: 'Máster Fansly' }, 
-    { value: 'fetiches', label: 'Máster Fetiches' },
-    { value: 'master_Clientes', label: 'Máster Clientes' },
-];
+// --- CAMBIO 1: Importamos useQuery y la función fetchCourses ---
+import { useQuery } from '@tanstack/react-query'
+import { fetchCourses } from './Courses' // Asumiendo que están en la misma carpeta, ajusta la ruta si es necesario
+// -------------------------------------------------------------
+
+// --- CAMBIO 2: Borramos MASTER_OPTIONS hardcodeado ---
+// Ya no necesitamos la constante fija aquí
+// ----------------------------------------------------
 
 const schema = z.object({
   name: z.string().min(2, 'El nombre completo es obligatorio y debe tener al menos 2 caracteres'),
   lastname: z.string().min(2, 'El apellido es obligatorio'),
   telegram: z.string().regex(/^@?(\w){5,}/, 'El usuario de Telegram no es válido (ej: @miusuario)'),
-  
-  // No tocamos 'age', estaba bien.
   age: z.coerce.number().min(18, 'Debes ser mayor de 18 años').max(100, 'Edad inválida').optional(), 
-  
   master: z.array(z.string()).min(1, 'Debes seleccionar al menos una Máster adquirida'), 
-
   email: z.string().email('Ingresa un email válido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   passwordConfirm: z.string().min(6, 'Debes confirmar la contraseña'),
 })
-.superRefine(({ password, passwordConfirm }, ctx) => { // <-- ¡LA CORRECCIÓN!
+.superRefine(({ password, passwordConfirm }, ctx) => {
   if (password !== passwordConfirm) {
     ctx.addIssue({
       code: "custom",
       message: "Las contraseñas no coinciden",
-      path: ['passwordConfirm'] // El campo que mostrará el error
+      path: ['passwordConfirm']
     });
   }
 });
-// -------------------------
 
-// 2. Tipado de FormData CORREGIDO
-// Renombramos 'FormData' (que es un nombre reservado del navegador) a 'RegisterFormData'
-type RegisterFormData = z.infer<typeof schema>;// correctamente desde el '.optional()' de tu esquema Zod.
-
+type RegisterFormData = z.infer<typeof schema>;
 
 export default function Register() {
   const { register: registerUser } = useAuth() 
   const nav = useNavigate()
   
+  // --- CAMBIO 3: Traemos los cursos de la base de datos ---
+  const { data: courses, isLoading: isLoadingCourses } = useQuery({
+    queryKey: ['courses'],
+    queryFn: fetchCourses,
+  })
+
+  // Transformamos los cursos al formato que necesita react-select { value, label }
+  // Usamos el 'slug' como value para guardar en la DB, y 'title' como label para mostrar
+  const dynamicOptions = courses?.map(course => ({
+    value: course.slug, 
+    label: course.title
+  })) || []
+  // --------------------------------------------------------
+
   const {
-  register,
-  handleSubmit,
-  formState: { errors, isSubmitting },
-  control,
-} = useForm<RegisterFormData>({
-  resolver: zodResolver(schema) as Resolver<RegisterFormData>,
-  defaultValues: {
-    name: '',
-    lastname: '',
-    telegram: '',
-    age: undefined,
-    master: [],
-    email: '',
-    password: '',
-    passwordConfirm: '',
-  },
-  mode: 'onBlur',
-});
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    control,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(schema) as Resolver<RegisterFormData>,
+    defaultValues: {
+      name: '',
+      lastname: '',
+      telegram: '',
+      age: undefined,
+      master: [],
+      email: '',
+      password: '',
+      passwordConfirm: '',
+    },
+    mode: 'onBlur',
+  });
 
-
-  // Usamos SubmitHandler para un tipado más estricto y correcto
-  const onSubmit: SubmitHandler<RegisterFormData> = async (d) => { // <-- USAMOS EL NUEVO TIPO
+  const onSubmit: SubmitHandler<RegisterFormData> = async (d) => {
     try { 
-      // La propiedad 'd.master' es un array de strings, listo para ser enviado
       await registerUser(d.name, d.lastname, d.age, d.telegram, d.master, d.email, d.password)
-      
       toast.success('Registro exitoso. ¡Bienvenid@!')
       nav('/account') 
     }
@@ -124,65 +127,59 @@ export default function Register() {
             {errors.email && (<p className="mt-1.5 text-xs text-red-600">{errors.email.message}</p>)}
           </div>
           
-          
-
-          {/* Edad y Master (Multi-Select Desplegable) */}
+          {/* Edad y Telegram */}
           <div className="grid grid-cols-2 gap-4">
-
-              {/* Telegram */}
-
               <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Usuario de Telegram (@)</label>
-            <Input type="text" {...register('telegram')} placeholder="@usuario_telegram" />
-            {errors.telegram && (<p className="mt-1.5 text-xs text-red-600">{errors.telegram.message}</p>)}
-          </div>
-              {/* Edad */}
+                <label className="block text-sm font-medium text-gray-700 mb-2">Usuario de Telegram (@)</label>
+                <Input type="text" {...register('telegram')} placeholder="@usuario_telegram" />
+                {errors.telegram && (<p className="mt-1.5 text-xs text-red-600">{errors.telegram.message}</p>)}
+              </div>
               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Edad</label>
                   <Input 
                       type="number" 
-                      {...register('age', { 
-                          valueAsNumber: true, // Asegura que el input se convierta a number
-                      })} 
+                      {...register('age', { valueAsNumber: true })} 
                       placeholder="25" 
                   />
                   {errors.age && (<p className="mt-1.5 text-xs text-red-600">{errors.age.message}</p>)}
               </div>
-              
-              
           </div>
 
-          {/* Master Adquirida (Multi-Select con Controller) */}
-              <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ¿Qué **Máster** adquiriste?
-                  </label>
-                  
-                  <Controller
-                      name="master" 
-                      control={control}
-                      render={({ field }) => (
-                          <Select
-                              {...field}
-                              isMulti // Habilita la selección múltiple
-                              options={MASTER_OPTIONS}
-                              // Transformación para que react-hook-form reciba el array de strings
-                              onChange={(selectedOptions) => {
-                                  field.onChange(selectedOptions.map(option => option.value));
-                              }}
-                              // Muestra los valores seleccionados como objetos
-                              value={MASTER_OPTIONS.filter(option => field.value?.includes(option.value))}
-                              
-                              classNamePrefix="react-select"
-                              className={`mt-1 text-sm ${errors.master ? 'border border-red-500 rounded-md' : ''}`}
-                              placeholder="Selecciona una o más..."
-                          />
-                      )}
-                  />
-                  
-                  {errors.master && (<p className="mt-1.5 text-xs text-red-600">{errors.master.message}</p>)}
-                  
-              </div>
+          {/* Master Adquirida (Dinámico desde DB) */}
+          <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ¿Qué **Máster** adquiriste?
+              </label>
+              
+              <Controller
+                  name="master" 
+                  control={control}
+                  render={({ field }) => (
+                      <Select
+                          {...field}
+                          isMulti 
+                          // --- CAMBIO 4: Usamos las opciones dinámicas y agregamos estado de carga ---
+                          options={dynamicOptions} 
+                          isLoading={isLoadingCourses}
+                          loadingMessage={() => "Cargando cursos..."}
+                          noOptionsMessage={() => "No se encontraron cursos activos"}
+                          // --------------------------------------------------------------------------
+                          
+                          onChange={(selectedOptions) => {
+                              field.onChange(selectedOptions.map(option => option.value));
+                          }}
+                          // Importante: filtrar sobre dynamicOptions para mostrar los seleccionados correctamente
+                          value={dynamicOptions.filter(option => field.value?.includes(option.value))}
+                          
+                          classNamePrefix="react-select"
+                          className={`mt-1 text-sm ${errors.master ? 'border border-red-500 rounded-md' : ''}`}
+                          placeholder="Selecciona una o más..."
+                      />
+                  )}
+              />
+              
+              {errors.master && (<p className="mt-1.5 text-xs text-red-600">{errors.master.message}</p>)}
+          </div>
           
           {/* Contraseñas */}
           <div>
@@ -199,7 +196,7 @@ export default function Register() {
 
           <Button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoadingCourses} // Deshabilitar si se está enviando O cargando cursos
             className="w-full bg-blue-600 hover:bg-white-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-lg shadow-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {isSubmitting ? (

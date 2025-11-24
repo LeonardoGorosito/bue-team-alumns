@@ -10,13 +10,11 @@ export default function CourseDetails() {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
   
-  // Reusamos la query de cursos. React Query usará el caché si ya existen.
   const { data: courses, isLoading, isError } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: fetchCourses,
   })
 
-  // Encontramos el curso específico
   const course = courses?.find(c => c.slug === slug)
 
   const handleBuyClick = () => {
@@ -29,6 +27,14 @@ export default function CourseDetails() {
     }
     setIsModalOpen(false)
   }
+
+  // Valores por defecto por si la base de datos está vacía en estos campos
+  const defaultLearningPoints = [
+    "Contenido en preparación",
+    "Próximamente más detalles"
+  ]
+
+  const defaultDescription = "La descripción detallada de este curso estará disponible muy pronto."
 
   if (isLoading) {
     return (
@@ -46,7 +52,6 @@ export default function CourseDetails() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-sm">
           <h2 className="text-xl font-bold text-red-600 mb-2">Curso no encontrado</h2>
-          <p className="text-gray-600 mb-4">No pudimos encontrar el curso que buscas.</p>
           <Link to="/courses">
             <Button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
               Volver a cursos
@@ -56,6 +61,11 @@ export default function CourseDetails() {
       </div>
     )
   }
+
+  // Usamos los datos de la DB o los defaults si están vacíos
+  const pointsToShow = (course.learningPoints && course.learningPoints.length > 0) 
+    ? course.learningPoints 
+    : defaultLearningPoints;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -67,10 +77,7 @@ export default function CourseDetails() {
         message={
           <div className="space-y-4 text-left">
             <p className="font-medium text-red-600">
-              Si no estás al día con tu renovación, o si ya no sos alumna activa, no vas a poder acceder al contenido, incluso si realizás la compra.
-            </p>
-            <p>
-              No se realizan reembolsos bajo ninguna circunstancia.
+              Si no estás al día con tu renovación, o si ya no sos alumna activa, no vas a poder acceder al contenido.
             </p>
             <p className="font-semibold">
               Asegurate de tener tu renovación vigente antes de continuar.
@@ -81,7 +88,6 @@ export default function CourseDetails() {
       />
 
       <div className="max-w-4xl mx-auto">
-        {/* Breadcrumb */}
         <nav className="flex mb-8 text-sm text-gray-500">
           <Link to="/courses" className="hover:text-blue-600 transition-colors">Cursos</Link>
           <span className="mx-2">/</span>
@@ -101,7 +107,6 @@ export default function CourseDetails() {
               </p>
             </div>
             
-            {/* Decoración de fondo */}
             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
           </div>
@@ -113,14 +118,7 @@ export default function CourseDetails() {
                 <section>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Lo que aprenderás</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {[
-                      "Estrategias avanzadas de venta",
-                      "Gestión efectiva de clientes",
-                      "Cierre de ventas exitoso",
-                      "Análisis de mercado",
-                      "Liderazgo de equipos comerciales",
-                      "Optimización de procesos"
-                    ].map((item, i) => (
+                    {pointsToShow.map((item, i) => (
                       <div key={i} className="flex items-start">
                         <svg className="w-5 h-5 text-green-500 mt-1 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -134,12 +132,8 @@ export default function CourseDetails() {
                 <section>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Descripción detallada</h2>
                   <div className="prose text-gray-600">
-                    <p>
-                      Este curso está diseñado para profesionales que buscan elevar su carrera al siguiente nivel. 
-                      A través de módulos prácticos y teóricos, dominarás las habilidades necesarias para destacar en el competitivo mundo de las ventas.
-                    </p>
-                    <p className="mt-4">
-                      Incluye acceso a material exclusivo, sesiones de mentoría y una comunidad activa de profesionales.
+                    <p className="whitespace-pre-line">
+                      {course.longDescription || defaultDescription}
                     </p>
                   </div>
                 </section>
@@ -149,25 +143,47 @@ export default function CourseDetails() {
               <div className="lg:col-span-1">
                 <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 sticky top-8">
                   <div className="mb-6">
-                    <p className="text-sm text-gray-500 mb-1">Precio total del curso</p>
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold text-gray-900">
-                        {course.currency} ${course.price.toLocaleString('es-AR')}
-                      </span>
+                    <p className="text-sm text-gray-500 mb-2">Precio total del curso</p>
+                    
+                    {/* --- AQUI ESTAN LOS PRECIOS DOBLES --- */}
+                    <div className="space-y-1">
+                      {/* Precio Principal (ARS) */}
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-gray-900">
+                          ARS ${course.price.toLocaleString('es-AR')}
+                        </span>
+                        <span className="text-sm text-gray-500 font-medium">pesos arg.</span>
+                      </div>
+
+                      {/* Divisor visual */}
+                      <div className="flex items-center gap-2 text-gray-400 text-xs py-1">
+                        <div className="h-px bg-gray-200 w-full"></div>
+                        <span>o pagando en dólares</span>
+                        <div className="h-px bg-gray-200 w-full"></div>
+                      </div>
+
+                      {/* Precio Secundario (USD) */}
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-bold text-green-600">
+                          USD ${course.priceUsd}
+                        </span>
+                        <span className="text-sm text-gray-500 font-medium">dólares</span>
+                      </div>
                     </div>
+                    {/* ------------------------------------- */}
                   </div>
 
                   <div className="space-y-4">
                     <Button 
                       onClick={handleBuyClick}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-lg shadow-blue-600/20 transition-all transform hover:-translate-y-0.5"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-lg transition-all"
                     >
                       Comprar ahora
                     </Button>
                     
                     <div className="text-center">
                       <p className="text-xs text-gray-500 mt-4">
-                        Garantía de devolución de 30 días
+                        Acceso inmediato tras el pago
                       </p>
                     </div>
                   </div>
@@ -175,9 +191,9 @@ export default function CourseDetails() {
                   <div className="mt-8 pt-6 border-t border-gray-200 space-y-4">
                     <div className="flex items-center text-sm text-gray-600">
                       <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>20 horas de contenido</span>
+                      <span>Acceso online 24/7</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +205,7 @@ export default function CourseDetails() {
                       <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                       </svg>
-                      <span>Acceso online 24/7</span>
+                      <span>Acceso de por vida</span>
                     </div>
                   </div>
                 </div>
