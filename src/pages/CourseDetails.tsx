@@ -152,13 +152,12 @@ export default function CourseDetails() {
                         <span className="text-3xl font-bold text-gray-900">
                           ARS ${course.price.toLocaleString('es-AR')}
                         </span>
-                        <span className="text-sm text-gray-500 font-medium">pesos arg.</span>
                       </div>
 
                       {/* Divisor visual */}
                       <div className="flex items-center gap-2 text-gray-400 text-xs py-1">
                         <div className="h-px bg-gray-200 w-full"></div>
-                        <span>o pagando en dólares</span>
+                        <span>O</span>
                         <div className="h-px bg-gray-200 w-full"></div>
                       </div>
 
@@ -167,7 +166,6 @@ export default function CourseDetails() {
                         <span className="text-2xl font-bold text-green-600">
                           USD ${course.priceUsd}
                         </span>
-                        <span className="text-sm text-gray-500 font-medium">dólares</span>
                       </div>
                     </div>
                     {/* ------------------------------------- */}

@@ -17,6 +17,7 @@ export interface Course {
   isActive: boolean
   longDescription?: string 
   learningPoints?: string[]
+  features?: string[]
 }
 
 export const fetchCourses = async (): Promise<Course[]> => {
@@ -139,57 +140,58 @@ export default function Courses() {
                 </div>
 
                 <div className="mb-5 space-y-2 bg-gray-50 rounded-lg p-3">
-                   <div className="flex items-center text-sm text-gray-700">
-                     <svg className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                     </svg>
-                     Videos HD y material descargable
-                   </div>
-                   <div className="flex items-center text-sm text-gray-700">
-                     <svg className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                     </svg>
-                     Acceso de por vida
-                   </div>
-                   <div className="flex items-center text-sm text-gray-700">
-                     <svg className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                     </svg>
-                     Soporte personalizado
-                   </div>
+                  {(c.features && c.features.length > 0 ? c.features : [
+                      "Videos HD y material descargable", 
+                      "Acceso de por vida", 
+                      "Soporte personalizado"
+                  ]).map((feature, i) => (
+                    <div key={i} className="flex items-center text-sm text-gray-700">
+                      <svg className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      {feature}
+                    </div>
+                  ))}
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200 gap-3">
-                  <div>
+                {/* --- SECCIÓN DEL FOOTER RESPONSIVE --- */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 border-t border-gray-200 gap-4">
+                  
+                  {/* Contenedor de Precios */}
+                  <div className="w-full sm:w-auto">
                     <p className="text-xs text-gray-500 mb-1">Precio total</p>
-                    <div className="flex flex-col">
-                      {/* PRECIO EN PESOS */}
+                    <div className="flex flex-row items-baseline gap-2 sm:flex-col sm:gap-0">
                       <span className="text-2xl font-bold text-blue-600">
                         ARS ${c.price.toLocaleString('es-AR')}
                       </span>
-                      {/* PRECIO EN DOLARES */}
-                      <span className="text-sm font-medium text-gray-500">
-                        o USD ${c.priceUsd}
+                      <div className="flex flex-row items-baseline gap-2 sm:flex-col sm:gap-0">
+                      <span className="text-xs text-gray-500"> O </span>
+                      </div>
+                      <span className="text-2xl font-medium text-gray-500">
+                           USD ${c.priceUsd}
                       </span>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
-                    <Link to={`/courses/${c.slug}`}>
-                      <Button className="bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-medium px-4 py-3 rounded-lg transition-all">
+                  {/* Contenedor de Botones (Responsive) */}
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    
+                    <Link to={`/courses/${c.slug}`} className="w-full sm:w-auto">
+                      <Button className="w-full sm:w-auto justify-center bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-medium px-4 py-3 rounded-lg transition-all">
                         Más información
                       </Button>
                     </Link>
 
                     <Button 
                       onClick={() => handleBuyClick(c.slug)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all flex items-center"
+                      className="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all flex items-center"
                     >
                       Comprar
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
                     </Button>
+
                   </div>
                   
                 </div>
