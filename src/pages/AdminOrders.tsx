@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '../lib/axios'
 
-// Definimos los tipos de datos que vienen del backend
 interface Order {
   id: string
   buyerName: string
@@ -25,7 +24,6 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
 
-  // 1. Cargar las órdenes al entrar
   const fetchOrders = async () => {
     try {
       const { data } = await api.get('/orders/admin')
@@ -42,7 +40,6 @@ export default function AdminOrders() {
     fetchOrders()
   }, [])
 
-  // 2. Función para cambiar estado (Aprobar/Rechazar)
   const handleStatusChange = async (orderId: string, newStatus: 'PAID' | 'REJECTED') => {
     if (!confirm(`¿Estás seguro de cambiar el estado a ${newStatus}?`)) return
 
@@ -50,7 +47,7 @@ export default function AdminOrders() {
     try {
       await api.put(`/orders/${orderId}/status`, { status: newStatus })
       toast.success(`Orden ${newStatus === 'PAID' ? 'Aprobada' : 'Rechazada'} correctamente`)
-      fetchOrders() // Recargamos la lista
+      fetchOrders()
     } catch (error) {
       toast.error('Error actualizando la orden')
     } finally {
@@ -58,11 +55,25 @@ export default function AdminOrders() {
     }
   }
 
-  // Función para ver el comprobante en una pestaña nueva
+  // --- FUNCIÓN CORREGIDA ---
   const viewReceipt = (url: string) => {
-    const fullUrl = `http://localhost:3000${url}` 
-    window.open(fullUrl, '_blank')
+    if (!url) return
+
+    let finalUrl = url
+
+    // 1. Si la URL ya empieza con http/https, NO le agregamos localhost
+    // 2. Corregimos errores comunes como "https//" sin dos puntos
+    if (finalUrl.startsWith('https//')) {
+        finalUrl = finalUrl.replace('https//', 'https://')
+    }
+
+    // 3. Aseguramos que sea una URL absoluta si viene de Cloudinary
+    // Si por alguna razón es relativa (ej: "/uploads/..."), ahí sí podríamos necesitar localhost, 
+    // pero con Cloudinary siempre será absoluta.
+    
+    window.open(finalUrl, '_blank', 'noopener,noreferrer')
   }
+  // -------------------------
 
   if (loading) return <div className="p-10 text-center">Cargando panel...</div>
 
