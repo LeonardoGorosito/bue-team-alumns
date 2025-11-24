@@ -1,12 +1,12 @@
+import { useState } from 'react'
 import Card from '../components/Card'
 import Button from '../components/Button'
-// NUEVO: Imports para fetching de datos y navegación
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import ConfirmationModal from '../components/ConfirmationModal'
 
-// NUEVO: Definimos el tipo de dato que esperamos de la API
-interface Course {
+export interface Course {
   id: string
   slug: string
   title: string
@@ -16,25 +16,33 @@ interface Course {
   isActive: boolean
 }
 
-// NUEVO: Función que React Query usará para traer los datos
-const fetchCourses = async (): Promise<Course[]> => {
-  // Asumimos que tienes un endpoint 'GET /courses' en tu API
+export const fetchCourses = async (): Promise<Course[]> => {
   const { data } = await api.get('/courses')
   return data
 }
 
-// ELIMINADO: const mock = [...]
-
 export default function Courses() {
-  // NUEVO: Usamos useQuery para traer los datos de la API
+  const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedCourseSlug, setSelectedCourseSlug] = useState<string | null>(null)
+
   const { data: courses, isLoading, isError } = useQuery<Course[]>({
-    queryKey: ['courses'], // Clave única para el caché
+    queryKey: ['courses'],
     queryFn: fetchCourses,
   })
 
-  // --- NUEVO: Manejo de estados de carga y error ---
+  const handleBuyClick = (slug: string) => {
+    setSelectedCourseSlug(slug)
+    setIsModalOpen(true)
+  }
 
-  // Estado de Carga
+  const handleConfirmBuy = () => {
+    if (selectedCourseSlug) {
+      navigate(`/checkout?course=${selectedCourseSlug}`)
+    }
+    setIsModalOpen(false)
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-8 px-4 flex items-center justify-center">
@@ -48,7 +56,6 @@ export default function Courses() {
     )
   }
 
-  // Estado de Error
   if (isError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 py-8 px-4 flex items-center justify-center">
@@ -60,20 +67,36 @@ export default function Courses() {
     )
   }
 
-  // --- FIN DE MANEJO DE ESTADOS ---
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-8 px-4">
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmBuy}
+        title="IMPORTANTE — LEE ANTES DE COMPRAR"
+        message={
+          <div className="space-y-4 text-left">
+            <p className="font-medium text-red-600">
+              Si no estás al día con tu renovación, o si ya no sos alumna activa, no vas a poder acceder al contenido, incluso si realizás la compra.
+            </p>
+            <p>
+              No se realizan reembolsos bajo ninguna circunstancia.
+            </p>
+            <p className="font-semibold">
+              Asegurate de tener tu renovación vigente antes de continuar.
+            </p>
+          </div>
+        }
+        confirmText="Entendido, continuar"
+      />
+
       <div className="max-w-6xl mx-auto">
-        {/* Header (sin cambios) */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Masters Disponibles</h1>
           <p className="text-gray-600">Elige el curso perfecto para potenciar tus ventas</p>
         </div>
 
-        {/* Badge destacado (sin cambios) */}
         <div className="bg-blue-600 text-white rounded-lg p-4 mb-8 flex items-center space-x-3 shadow-lg">
-          {/* ... (contenido del badge) ... */}
            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -85,18 +108,13 @@ export default function Courses() {
            </div>
         </div>
 
-        {/* Grid de cursos */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* NUEVO: Verificamos si hay cursos antes de mapear */}
           {courses && courses.length > 0 ? (
-            // CAMBIO: Mapeamos sobre 'courses' (de la API) en lugar de 'mock'
             courses.map(c => (
               <Card 
                 key={c.slug} 
                 className="bg-white border border-blue-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
               >
-                {/* Badge superior (sin cambios) */}
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                     <svg className="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -107,7 +125,6 @@ export default function Courses() {
                   <span className="text-xs text-gray-500 font-medium">Acceso inmediato</span>
                 </div>
 
-                {/* Título y descripción (sin cambios) */}
                 <div className="mb-5">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center">
                     {c.title}
@@ -118,9 +135,7 @@ export default function Courses() {
                   <p className="text-gray-600 text-sm leading-relaxed">{c.desc}</p>
                 </div>
 
-                {/* Features incluidos (sin cambios) */}
                 <div className="mb-5 space-y-2 bg-gray-50 rounded-lg p-3">
-                  {/* ... (items de features) ... */}
                    <div className="flex items-center text-sm text-gray-700">
                      <svg className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -141,8 +156,7 @@ export default function Courses() {
                    </div>
                 </div>
 
-                {/* Precio y CTA (CAMBIO: <a> por <Link>) */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200 gap-3">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Precio total</p>
                     <p className="text-2xl font-bold text-blue-600">
@@ -150,21 +164,28 @@ export default function Courses() {
                     </p>
                   </div>
                   
-                  {/* CAMBIO: Usamos <Link> de react-router-dom para mejor navegación */}
-                  <Link to={`/checkout?course=${c.slug}`}>
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all flex items-center">
-                      Comprar ahora
+                  <div className="flex gap-2">
+                    <Link to={`/courses/${c.slug}`}>
+                      <Button className="bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-medium px-4 py-3 rounded-lg transition-all">
+                        Más información
+                      </Button>
+                    </Link>
+
+                    <Button 
+                      onClick={() => handleBuyClick(c.slug)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all flex items-center"
+                    >
+                      Comprar
                       <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                       </svg>
                     </Button>
-                  </Link>
+                  </div>
                   
                 </div>
               </Card>
             ))
           ) : (
-            // NUEVO: Estado de vacío, si la API no devuelve cursos
             <div className="md:col-span-2 text-center bg-white p-8 rounded-lg shadow">
               <h3 className="text-lg font-semibold text-gray-800">No hay cursos disponibles</h3>
               <p className="text-gray-600 mt-2">Vuelve a intentarlo más tarde.</p>
@@ -172,9 +193,7 @@ export default function Courses() {
           )}
         </section>
 
-        {/* Footer informativo (sin cambios) */}
         <div className="mt-8 bg-white border border-blue-100 rounded-lg p-6 shadow-sm">
-          {/* ... (contenido del footer) ... */}
            <div className="flex items-start space-x-4">
              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

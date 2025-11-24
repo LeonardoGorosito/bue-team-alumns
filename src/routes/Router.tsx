@@ -1,5 +1,3 @@
-// src/Router.tsx
-
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from '../pages/Login'
 import Register from '../pages/Register' 
@@ -12,6 +10,7 @@ import ProtectedRoute from '../components/ProtectedRoute'
 import MainLayout from '../components/MainLayout'
 import { useAuth } from '../context/AuthContext'
 import Courses from '../pages/Courses'
+import CourseDetails from '../pages/CourseDetails'
 
 
 /**
@@ -60,7 +59,8 @@ return (
       
       {/* Área privada (requiere autenticación) */}
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-        <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+      <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
+      <Route path="/courses/:slug" element={<ProtectedRoute><CourseDetails /></ProtectedRoute>} />
       <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
       <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
       <Route path="/failure" element={<ProtectedRoute><Failure /></ProtectedRoute>} />
