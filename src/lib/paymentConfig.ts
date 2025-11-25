@@ -2,10 +2,10 @@
 
 export const PAYMENT_METHODS = {
     MERCADOPAGO: {
-    label: 'MERADOPAGO',
-    description: 'Tarjetas, Rapipago, PagoFácil (Automático).',
+    label: 'Tarjeta de Crédito / Débito',
+    description: 'Tarjetas (Automático).',
     type: 'REDIRECT',
-    link: 'https://www.mercadopago.com/tu_link_de_pago', // <--- TU LINK DE MERCADOPAGO
+    link: 'https://www.mercadopago.com/tu_link_de_pago', 
     warning: null,
   },
   TRANSFER: {
