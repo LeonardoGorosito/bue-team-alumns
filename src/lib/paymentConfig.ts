@@ -54,7 +54,7 @@ export const PAYMENT_METHODS = {
     type: 'MANUAL',
     warning: 'IMPORTANTE: No coloques ninguna nota o comentario en el envío.',
     data: {
-      email: 'tu_email_skrill@ejemplo.com' // <--- PON TU EMAIL
+      email: 'tu_email_skrill@ejemplo.com' // 
     }
   },
   PREX: {
@@ -63,7 +63,7 @@ export const PAYMENT_METHODS = {
     type: 'MANUAL',
     warning: 'Solo se aceptan transferencias en USD desde otra cuenta Prex.',
     data: {
-      cuenta: 'XXXXXXX (Argentina)', // <--- PON TUS DATOS
+      cuenta: 'XXXXXXX (Argentina)',
       titular: 'Tu Nombre Completo'
     }
   }

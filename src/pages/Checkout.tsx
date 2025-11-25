@@ -83,10 +83,10 @@ export default function Checkout() {
       const config = PAYMENT_METHODS[data.method as PaymentMethodKey]
 
       if (config.type === 'REDIRECT') {
-        window.location.href = config.link
-      } else {
-        nav(`/success?orderId=${order.id}&method=${data.method}`)
-      }
+         nav(`/success?orderId=${order.id}&method=${data.method}&payLink=${encodeURIComponent(config.link)}`)
+          } else {
+          nav(`/success?orderId=${order.id}&method=${data.method}`)
+            }
 
     } catch (e: any) {
       console.error(e) 
