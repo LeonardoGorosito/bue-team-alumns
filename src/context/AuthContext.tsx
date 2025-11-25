@@ -2,7 +2,14 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/axios'
 
 
-type User = { id: string; email: string; name?: string; role: 'STUDENT' | 'ADMIN' }
+type User = { 
+  id: string; 
+  email: string; 
+  name: string;
+  lastname?: string;
+  role: 'STUDENT' | 'ADMIN';
+}
+
 type AgeType = number | undefined; 
 type MasterListType = string[]; // Tipo para el array de Masters seleccionadas
 
