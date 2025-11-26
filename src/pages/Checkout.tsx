@@ -35,7 +35,7 @@ export default function Checkout() {
   const { data: courses } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: fetchCourses,
-    // Opcional: staleTime para no refetchear a cada rato
+    //  staleTime para no refetchear a cada rato
     staleTime: 1000 * 60 * 5, 
   })
 

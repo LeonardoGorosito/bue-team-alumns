@@ -49,12 +49,13 @@ export default function Courses() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-8 px-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-12 px-4 flex items-center justify-center">
         <div className="text-center">
-          <svg className="w-12 h-12 text-blue-600 animate-spin mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <h2 className="mt-4 text-xl font-semibold text-blue-800">Cargando cursos...</h2>
+          <div className="relative w-16 h-16 mx-auto mb-4">
+            <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <h2 className="text-xl font-medium text-gray-900">Cargando experiencia...</h2>
         </div>
       </div>
     )
@@ -62,169 +63,226 @@ export default function Courses() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 py-8 px-4 flex items-center justify-center">
-        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold text-red-600">Ups... algo salió mal</h2>
-          <p className="text-gray-600 mt-2">No pudimos cargar los cursos. Por favor, intenta de nuevo más tarde.</p>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-red-100">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Algo salió mal</h2>
+          <p className="text-gray-600 mb-6">No pudimos cargar los cursos en este momento.</p>
+          <Button onClick={() => window.location.reload()} className="bg-gray-900 text-white hover:bg-gray-800">
+            Intentar nuevamente
+          </Button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-8 px-4">
+    <div className="min-h-screen bg-gray-50">
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmBuy}
-        title="IMPORTANTE — LEE ANTES DE COMPRAR"
+        title="Información Importante"
         message={
           <div className="space-y-4 text-left">
-            <p className="font-medium text-red-600">
-              Si no estás al día con tu renovación, o si ya no sos alumna activa, no vas a poder acceder al contenido, incluso si realizás la compra.
-            </p>
-            <p>
-              No se realizan reembolsos bajo ninguna circunstancia.
-            </p>
-            <p className="font-semibold">
-              Asegurate de tener tu renovación vigente antes de continuar.
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-amber-700 font-medium">
+                    Requisito de Membresía Activa
+                  </p>
+                  <p className="text-sm text-amber-600 mt-1">
+                    Si no estás al día con tu renovación, no podrás acceder al contenido incluso si realizas la compra.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">
+              Por favor verifica tu estado antes de continuar. No se realizan reembolsos.
             </p>
           </div>
         }
         confirmText="Entendido, continuar"
       />
 
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Masters Disponibles</h1>
-          <p className="text-gray-600">Elige el curso perfecto para potenciar tus ventas</p>
+      {/* Hero Section */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 py-16 sm:py-24 text-center">
+          <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold mb-6 tracking-wide uppercase">
+            Formación Profesional
+          </span>
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">
+            Domina el Arte de las Ventas <br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+              High Ticket
+            </span>
+          </h1>
+          <p className="max-w-2xl mx-auto text-lg text-gray-600 leading-relaxed mb-10">
+            Programas intensivos diseñados para escalar tus resultados. Aprende estrategias probadas y metodologías avanzadas.
+          </p>
+          
+          {/* Stats / Trust Indicators */}
+          <div className="flex justify-center gap-8 text-gray-400 text-sm font-medium uppercase tracking-wider">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              Contenido Premium
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+              Acceso Vitalicio
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 py-16">
+        {/* Banner Oferta */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-2xl mb-16">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+          <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+          
+          <div className="relative p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="hidden sm:flex h-16 w-16 bg-white/20 backdrop-blur-sm rounded-2xl items-center justify-center flex-shrink-0 border border-white/30">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-2">Oferta de Lanzamiento</h3>
+                <p className="text-blue-100 text-lg max-w-xl">
+                  Aprovecha precios especiales por tiempo limitado. Invierte en tu futuro hoy.
+                </p>
+              </div>
+            </div>
+            <div className="flex-shrink-0">
+              <span className="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium">
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                Disponible ahora
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-blue-600 text-white rounded-lg p-4 mb-8 flex items-center space-x-3 shadow-lg">
-           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-             </svg>
-           </div>
-           <div>
-             <p className="font-semibold">Oferta de lanzamiento</p>
-             <p className="text-sm text-blue-100">Aprovechá los precios especiales disponibles ahora</p>
-           </div>
-        </div>
-
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Grid de Cursos */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {courses && courses.length > 0 ? (
             courses.map(c => (
               <Card 
                 key={c.slug} 
-                className="bg-white border border-blue-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+                className="group relative bg-white border-0 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden flex flex-col h-full"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                    <svg className="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    Master
-                  </span>
-                  <span className="text-xs text-gray-500 font-medium">Acceso inmediato</span>
-                </div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+                
+                <div className="p-8 flex-grow">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide bg-blue-50 text-blue-700 uppercase">
+                      Masterclass
+                    </span>
+                    <div className="flex items-center text-amber-400">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
 
-                <div className="mb-5">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
                     {c.title}
-                    <svg className="w-5 h-5 ml-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{c.desc}</p>
-                </div>
+                  <p className="text-gray-600 leading-relaxed mb-8">
+                    {c.desc}
+                  </p>
 
-                <div className="mb-5 space-y-2 bg-gray-50 rounded-lg p-3">
-                  {(c.features && c.features.length > 0 ? c.features : [
-                      "Videos HD y material descargable", 
-                      "Acceso de por vida", 
-                      "Soporte personalizado"
-                  ]).map((feature, i) => (
-                    <div key={i} className="flex items-center text-sm text-gray-700">
-                      <svg className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      {feature}
-                    </div>
-                  ))}
-                </div>
-
-                {/* --- SECCIÓN DEL FOOTER RESPONSIVE --- */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-6 border-t border-gray-200 gap-4">
-                  
-                  {/* Contenedor de Precios */}
-                  <div className="w-full sm:w-auto">
-                    <p className="text-xs text-gray-500 mb-1">Precio total</p>
-                    <div className="flex flex-row items-baseline gap-2 sm:flex-col sm:gap-0">
-                      <span className="text-2xl font-bold text-blue-600">
-                        ARS ${c.price.toLocaleString('es-AR')}
-                      </span>
-                      <div className="flex flex-row items-baseline gap-2 sm:flex-col sm:gap-0">
-                      <span className="text-xs text-gray-500"> O </span>
+                  <div className="space-y-3 mb-8">
+                    {(c.features && c.features.length > 0 ? c.features : [
+                        "Videos HD y material descargable", 
+                        "Acceso de por vida a actualizaciones", 
+                        "Soporte prioritario personalizado"
+                    ]).map((feature, i) => (
+                      <div key={i} className="flex items-start text-sm text-gray-700">
+                        <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {feature}
                       </div>
-                      <span className="text-2xl font-medium text-gray-500">
-                           USD ${c.priceUsd}
-                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-8 border-t border-gray-100 mt-auto">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="text-center sm:text-left">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Inversión Total</p>
+                      <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                        <span className="text-3xl font-bold text-gray-900">
+                          ${c.priceUsd}
+                        </span>
+                        <span className="text-sm font-medium text-gray-500">USD</span>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">
+                        o ${c.price.toLocaleString('es-AR')} ARS
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col w-full sm:w-auto gap-3">
+                      <Button 
+                        onClick={() => handleBuyClick(c.slug)}
+                        className="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all transform hover:-translate-y-0.5"
+                      >
+                        Comprar Ahora
+                      </Button>
+                      <Link to={`/courses/${c.slug}`} className="w-full sm:w-auto block">
+                        <Button className="w-full justify-center bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-6 py-3 rounded-xl transition-all">
+                          Ver Detalles
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-                  
-                  {/* Contenedor de Botones (Responsive) */}
-                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    
-                    <Link to={`/courses/${c.slug}`} className="w-full sm:w-auto">
-                      <Button className="w-full sm:w-auto justify-center bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-medium px-4 py-3 rounded-lg transition-all">
-                        Más información
-                      </Button>
-                    </Link>
-
-                    <Button 
-                      onClick={() => handleBuyClick(c.slug)}
-                      className="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-lg shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all flex items-center"
-                    >
-                      Comprar
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </Button>
-
-                  </div>
-                  
                 </div>
               </Card>
             ))
           ) : (
-            <div className="md:col-span-2 text-center bg-white p-8 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-800">No hay cursos disponibles</h3>
-              <p className="text-gray-600 mt-2">Vuelve a intentarlo más tarde.</p>
+            <div className="col-span-full py-12 text-center">
+              <div className="inline-block p-4 rounded-full bg-gray-100 mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">No hay cursos disponibles</h3>
+              <p className="text-gray-500 mt-1">Vuelve a revisar más tarde para nuevas oportunidades.</p>
             </div>
           )}
         </section>
 
-        <div className="mt-8 bg-white border border-blue-100 rounded-lg p-6 shadow-sm">
-           <div className="flex items-start space-x-4">
-             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-               </svg>
-             </div>
-             <div>
-               <h3 className="font-semibold text-gray-900 mb-2">¿Tenés dudas sobre qué master elegir?</h3>
-               <p className="text-sm text-gray-600 mb-3">
-                 Podés comprar ambos cursos y obtener un descuento especial. Contactanos para más información sobre paquetes combinados.
-               </p>
-               <button className="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center">
-                 Contactar ahora
-                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                 </svg>
-               </button>
-             </div>
-           </div>
+        {/* CTA Section */}
+        <div className="mt-20 bg-gray-900 rounded-3xl p-8 sm:p-12 text-center sm:text-left relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                ¿Necesitas ayuda para decidir?
+              </h3>
+              <p className="text-gray-400 max-w-xl text-lg">
+                Nuestro equipo está listo para orientarte. Consulta por paquetes especiales y descuentos corporativos.
+              </p>
+            </div>
+            <button className="flex-shrink-0 bg-white text-gray-900 hover:bg-gray-50 font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105 shadow-lg">
+              Contactar Soporte
+            </button>
+          </div>
         </div>
       </div>
     </div>
