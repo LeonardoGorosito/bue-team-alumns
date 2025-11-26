@@ -5,7 +5,7 @@ export const PAYMENT_METHODS = {
     label: 'Tarjeta de Crédito / Débito',
     description: 'Tarjetas (Automático).',
     type: 'REDIRECT',
-    link: 'https://www.mercadopago.com/tu_link_de_pago', 
+    link: 'https://r.naranjax.com/ibLSUckC', 
     warning: null,
   },
   TRANSFER: {
@@ -14,28 +14,28 @@ export const PAYMENT_METHODS = {
     type: 'MANUAL',
     warning: 'El pedido se procesará una vez verificado el comprobante.',
     data: {
-      banco: 'Santander / Galicia',
-      alias: 'TU.ALIAS.MP',
-      cbu: '00000000000000000000',
-      titular: 'Tu Nombre'
+      banco: 'Brubank',
+      alias: 'agustinariera',
+      cbu: '1430001713004354990011',
+      titular: 'Agustina Soledad Riera'
     }
   },
   TIPFUNDER: {
     label: 'Tipfunder (Tarjeta)',
     description: 'Abonar en USD con tarjeta de crédito/débito desde cualquier país.',
     type: 'REDIRECT', 
-    link: 'https://tipfunder.com/TU_USUARIO', // <--- TU LINK DE TIPFUNDER
+    link: 'https://www.tipfunder.com/Cleopatrax19', 
     warning: null,
     data: {} // Vacío porque redirige
   },
   USDT: {
     label: 'USDT (Cripto)',
-    description: 'Transferencia vía red TRC20 o BEP20.',
+    description: 'Transferencia vía red TRC2 (tron).',
     type: 'MANUAL',
     warning: 'Revisa bien la red antes de enviar. Transferencias en otra red se perderán.',
     data: {
       network: 'TRC20 (Tron)', 
-      address: 'TU_BILLETERA_USDT_AQUI_XXXXXXXX', // <--- PON TU WALLET
+      address: 'TJ9XtdSxFQhLi8wBDzBVqg2u6gTBEDfkWQ', 
     }
   },
   AIRTM: {
@@ -44,8 +44,7 @@ export const PAYMENT_METHODS = {
     type: 'MANUAL',
     warning: 'IMPORTANTE: En la sección de notas escribe SOLAMENTE un punto ".". No escribas nada más.',
     data: {
-      email: 'tu_email_airtm@ejemplo.com', // <--- PON TU EMAIL
-      usuario: '@tu_usuario_airtm'
+      email: 'Agust.riera16@gmail.com'
     }
   },
   SKRILL: {
@@ -54,7 +53,7 @@ export const PAYMENT_METHODS = {
     type: 'MANUAL',
     warning: 'IMPORTANTE: No coloques ninguna nota o comentario en el envío.',
     data: {
-      email: 'tu_email_skrill@ejemplo.com' // 
+      email: 'Agust.riera16@gmail.com' // 
     }
   },
   PREX: {
@@ -63,8 +62,8 @@ export const PAYMENT_METHODS = {
     type: 'MANUAL',
     warning: 'Solo se aceptan transferencias en USD desde otra cuenta Prex.',
     data: {
-      cuenta: 'XXXXXXX (Argentina)',
-      titular: 'Tu Nombre Completo'
+      cuenta: '21333885 (Uruguay)',
+      titular: 'Leonardo Gorosito'
     }
   }
 } as const;
