@@ -238,7 +238,7 @@ export default function Checkout() {
               <div className="bg-blue-50 rounded-lg p-4 text-sm text-blue-900">
                 <p className="font-medium mb-2">Incluye:</p>
                 <ul className="space-y-1 list-disc list-inside text-xs">
-                  <li>Acceso inmediato y de por vida</li>
+                  <li>Acceso inmediato</li>
                   <li>Actualizaciones futuras</li>
                   <li>Soporte directo</li>
                   {/* Opcional: Mostrar features reales del curso */}

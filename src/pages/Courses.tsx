@@ -206,9 +206,9 @@ export default function Courses() {
 
                   <div className="space-y-3 mb-8">
                     {(c.features && c.features.length > 0 ? c.features : [
-                        "Videos HD y material descargable", 
-                        "Acceso de por vida a actualizaciones", 
-                        "Soporte prioritario personalizado"
+                        ". . .", 
+                        ". . .", 
+                        ". . ."
                     ]).map((feature, i) => (
                       <div key={i} className="flex items-start text-sm text-gray-700">
                         <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
