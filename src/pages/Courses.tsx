@@ -61,7 +61,9 @@ export default function Courses() {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmBuy}
         title="Información Importante"
-        message={<div>...</div>}
+        message={<div>Si no estás al día con tu renovación, o si ya no sos alumna activa, no vas a poder acceder al contenido, incluso si realizás la compra.
+No se realizan reembolsos bajo ninguna circunstancia.
+Asegurate de tener tu renovación vigente antes de continuar.</div>}
         confirmText="Entendido, continuar"
       />
 
