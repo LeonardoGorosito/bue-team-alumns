@@ -1,12 +1,11 @@
 // src/lib/paymentConfig.ts
 
 export const PAYMENT_METHODS = {
-    MERCADOPAGO: {
+    NaranjaX: {
     label: 'Tarjeta de Crédito / Débito',
     description: 'Tarjetas (Automático).',
     type: 'REDIRECT',
-    link: 'https://r.naranjax.com/ibLSUckC', 
-    warning: null,
+    link: '/instructivo-naranjax.pdf',    warning: null,
   },
   TRANSFER: {
     label: 'Transferencia Bancaria',
