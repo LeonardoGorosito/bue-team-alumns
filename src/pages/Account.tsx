@@ -1,13 +1,20 @@
-import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react' // <--- 1. IMPORTAR useState
+import { useNavigate } from 'react-router-dom'
 import Card from '../components/Card'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/axios'
 import { useQuery } from '@tanstack/react-query'
 import { PAYMENT_METHODS } from '../lib/paymentConfig'
 import type { PaymentMethodKey } from '../lib/paymentConfig'
+import CourseAccessModal from '../components/CourseAccessModal' // <--- 2. IMPORTAR EL MODAL
 
-// Interfaz ajustada
+// Definimos el tipo para los links JSON
+interface AccessLinkItem {
+  title: string
+  url: string
+}
+
+// Interfaz ajustada con los campos nuevos
 interface Order {
   id: string
   status: 'PENDING' | 'PAID' | 'REJECTED' | 'CANCELLED'
@@ -15,7 +22,9 @@ interface Order {
   course: { 
     title: string
     slug: string
-    accessLink?: string | null // <--- 1. Agregamos este campo opcional
+    // Campos para los links
+    accessLink?: string | null 
+    accessLinks?: AccessLinkItem[] | null 
   }
   payments: {
     method: string
@@ -67,6 +76,10 @@ export default function Account() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
+  // 3. ESTADOS PARA EL MODAL
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedCourseLinks, setSelectedCourseLinks] = useState<{ title: string, links: AccessLinkItem[] } | null>(null)
+
   const { data: orders, isLoading, refetch } = useQuery<Order[]>({
     queryKey: ['myOrders'],
     queryFn: fetchMyOrders,
@@ -94,6 +107,27 @@ export default function Account() {
     navigate(url)
   }
 
+  // 4. LÓGICA INTELIGENTE DE ACCESO
+  const handleAccessCourse = (order: Order) => {
+    const { accessLinks, accessLink, slug, title } = order.course
+
+    // A. Múltiples links (JSON) -> Abrir Modal
+    if (accessLinks && Array.isArray(accessLinks) && accessLinks.length > 0) {
+      setSelectedCourseLinks({ title, links: accessLinks })
+      setModalOpen(true)
+      return
+    }
+
+    // B. Un solo link externo (Legacy) -> Abrir directo
+    if (accessLink) {
+      window.open(accessLink, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    // C. Sin link externo -> Navegación interna
+    navigate(`/courses/${slug}`)
+  }
+
   return (
     <div className="min-h-screen px-4 py-8 bg-gray-50">
       <div className="mx-auto max-w-5xl">
@@ -109,7 +143,17 @@ export default function Account() {
           </div>
         </div>
 
-        {/* --- STATS CARDS --- */}
+        {/* 5. MODAL (Renderizado Condicional) */}
+        {selectedCourseLinks && (
+          <CourseAccessModal 
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title={selectedCourseLinks.title}
+            links={selectedCourseLinks.links}
+          />
+        )}
+
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3">
            <Card className="bg-white border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between">
@@ -140,8 +184,8 @@ export default function Account() {
           </Card>
         </div>
 
-        {/* --- TABLA DE COMPRAS --- */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {/* Tabla de Compras */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-8">
           <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h2 className="text-lg font-bold text-gray-900">Mis Pedidos Recientes</h2>
             <button onClick={() => refetch()} disabled={isLoading} className="text-sm text-blue-600 font-medium">
@@ -174,41 +218,26 @@ export default function Account() {
                       </div>
                     </div>
 
-                    {/* Estado y Acción */}
                     <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
                       
                       {getStatusBadge(order)}
 
-                      {/* --- 2. LÓGICA DE BOTONES INTELIGENTE --- */}
-                      
-                      {/* CASO: APROBADO */}
+                      {/* --- 6. BOTÓN INTELIGENTE UNIFICADO --- */}
                       {order.status === 'PAID' && (
-                        // Verificamos si existe el accessLink
-                        order.course.accessLink ? (
-                          <a 
-                            href={order.course.accessLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-blue-600 transition-all shadow-sm flex items-center gap-1"
-                          >
-                            Ir al Curso ↗
-                          </a>
-                        ) : (
-                          // Si NO hay link externo, usamos el link interno
-                          <Link to={`/courses/${order.course.slug}`} className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
-                            Ver Detalles →
-                          </Link>
-                        )
+                        <button 
+                          onClick={() => handleAccessCourse(order)}
+                          className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-blue-600 transition-all shadow-sm flex items-center gap-1"
+                        >
+                          Ir al Curso ↗
+                        </button>
                       )}
 
-                      {/* CASO: EN REVISIÓN */}
                       {underReview && (
                         <div className="text-xs text-blue-600 font-medium px-3">
-                          Estamos verificando tu pago...
+                          Verificando...
                         </div>
                       )}
 
-                      {/* CASO: PENDIENTE DE PAGO */}
                       {order.status === 'PENDING' && !underReview && (
                         <button 
                           onClick={() => handleResumeOrder(order)}
@@ -218,7 +247,6 @@ export default function Account() {
                         </button>
                       )}
 
-                       {/* CASO: RECHAZADO */}
                        {order.status === 'REJECTED' && (
                         <a href="#" className="text-sm text-gray-500 underline">Ayuda</a>
                       )}
