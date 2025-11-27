@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# Blue Team Alumns Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma educativa y de gestión de alumnas (CRM) construida con tecnologías modernas de React.
 
-Currently, two official plugins are available:
+## 🚀 Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Este proyecto es una aplicación web frontend diseñada para gestionar la venta y acceso a cursos (Masters), así como proporcionar herramientas administrativas para el seguimiento de alumnas y ventas.
 
-## React Compiler
+La aplicación cuenta con dos áreas principales:
+- **Portal de Alumnas:** Donde las usuarias pueden registrarse, ver cursos, realizar compras y acceder a su contenido.
+- **Panel de Administración (CRM):** Donde los administradores pueden ver el historial de ventas y gestionar la base de datos de alumnas.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+El proyecto utiliza un stack moderno y optimizado para rendimiento y experiencia de desarrollador:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Core:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Build Tool:** [Vite 7](https://vitejs.dev/)
+- **Estilos:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **Enrutamiento:** [React Router 7](https://reactrouter.com/)
+- **Estado & Data Fetching:** [TanStack Query (React Query)](https://tanstack.com/query/latest)
+- **Formularios:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) (Validación)
+- **HTTP Client:** [Axios](https://axios-http.com/)
+- **Notificaciones:** [Sonner](https://sonner.emilkowal.ski/)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📂 Estructura del Proyecto
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/      # Componentes reutilizables (Button, Card, Input, Navbar, etc.)
+├── context/         # Contextos de React (ej. AuthContext para autenticación)
+├── lib/             # Configuraciones y utilidades (axios, utils)
+├── pages/           # Vistas principales de la aplicación
+│   ├── AdminOrders.tsx    # Panel de Ventas (Admin)
+│   ├── AdminStudents.tsx  # CRM de Alumnas (Admin)
+│   ├── Courses.tsx        # Catálogo de cursos
+│   ├── CourseDetails.tsx  # Detalle de curso
+│   ├── Checkout.tsx       # Proceso de pago
+│   ├── Login.tsx / Register.tsx
+│   └── ...
+├── routes/          # Configuración de rutas (Router.tsx)
+└── main.tsx         # Punto de entrada
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ⚡ Instalación y Uso
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone <url-del-repo>
+    cd blue-7eam-alumns
+    ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configurar variables de entorno:**
+    Crea un archivo `.env` en la raíz del proyecto (basado en `.env.example` si existe) con la URL de tu backend:
+    ```env
+    VITE_API_URL=http://localhost:3000/api
+    ```
+
+4.  **Iniciar servidor de desarrollo:**
+    ```bash
+    npm run dev
+    ```
+    La aplicación estará disponible en `http://localhost:5173`.
+
+## 📜 Scripts Disponibles
+
+- `npm run dev`: Inicia el servidor de desarrollo.
+- `npm run build`: Compila la aplicación para producción.
+- `npm run preview`: Vista previa de la build de producción.
+- `npm run lint`: Ejecuta el linter (ESLint) para encontrar errores.
+
+## 🔐 Autenticación y Roles
+
+El sistema maneja dos roles principales:
+- **STUDENT:** Acceso a cursos comprados y perfil.
+- **ADMIN:** Acceso total + Panel de Administración (Ventas y Alumnas).
+
+La protección de rutas se maneja en `src/routes/Router.tsx` mediante el componente `ProtectedRoute`.

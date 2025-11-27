@@ -37,7 +37,7 @@ export default function Navbar() {
               <img className="w-6 h-6" src="/img/logo-blu_7eam.png" alt="Logo" />
             </div>
             <span className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
-              Blue 7eam
+              Blue 7eam Alumnas
             </span>
           </Link>
 

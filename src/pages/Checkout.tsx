@@ -1,14 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom' // <--- Importamos Link
 import { Input } from '../components/Input'
 import Button from '../components/Button'
 import { toast } from 'sonner'
 import { api } from '../lib/axios'
 import { PAYMENT_METHODS } from '../lib/paymentConfig'
 import type { PaymentMethodKey } from '../lib/paymentConfig'
-// 1. Importamos useQuery y la función para buscar cursos
 import { useQuery } from '@tanstack/react-query' 
 import { fetchCourses, type Course } from './Courses' 
 import { useAuth } from '../context/AuthContext'
@@ -19,49 +18,46 @@ const schema = z.object({
   buyerName: z.string().min(2, 'Ingresa tu nombre completo'),
   buyerEmail: z.string().email('Ingresa un email válido'),
   method: z.enum(Object.keys(PAYMENT_METHODS) as [string, ...string[]]),
+  // NUEVO: Validación del checkbox
+  termsAccepted: z.boolean().refine(val => val === true, { message: 'Debes aceptar los términos y condiciones para continuar.' })
 })
 
 type FormData = z.infer<typeof schema>
 
-// 2. Definimos qué métodos son en DÓLARES (Ajusta esto según tu lógica de negocio)
+// Métodos en Dólares
 const USD_METHODS = ['USDT', 'AIRTM', 'SKRILL','TIPFUNDER','PREX']; 
 
 export default function Checkout() {
   const [sp] = useSearchParams()
-  const courseSlug = sp.get('course') || '' // Renombro a courseSlug para mayor claridad
+  const courseSlug = sp.get('course') || ''
   const nav = useNavigate()
 
-  // 3. Traemos la información de los cursos para saber los precios
   const { data: courses } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: fetchCourses,
-    //  staleTime para no refetchear a cada rato
     staleTime: 1000 * 60 * 5, 
   })
 
-
   const { user } = useAuth()
 
-
-  // 4. Buscamos el curso seleccionado en la lista
   const selectedCourseData = courses?.find(c => c.slug === courseSlug)
 
   const { 
     register, 
     handleSubmit, 
     watch, 
-    setValue, // <--- AGRÉGALO AQUÍ
+    setValue,
     formState: { errors, isSubmitting } 
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { 
-      method: 'TIPFUNDER' // Método por defecto
+      method: 'TIPFUNDER',
+      // termsAccepted: false // (Opcional implícito)
     },
   })
 
   const selectedMethod = watch('method') as PaymentMethodKey
 
-  // 5. Lógica para calcular el precio a mostrar
   const isUsd = USD_METHODS.includes(selectedMethod);
   const currentPrice = isUsd ? selectedCourseData?.priceUsd : selectedCourseData?.price;
   const currentCurrency = isUsd ? 'USD' : 'ARS';
@@ -73,8 +69,6 @@ export default function Checkout() {
     }
 
     try {
-      // Nota: Al backend le mandamos los datos. El backend debería validar el precio final,
-      // pero aquí enviamos lo necesario para crear la orden.
       const { data: order } = await api.post('/orders', { 
         ...data, 
         courseSlug: courseSlug 
@@ -84,9 +78,9 @@ export default function Checkout() {
 
       if (config.type === 'REDIRECT') {
          nav(`/success?orderId=${order.id}&method=${data.method}&payLink=${encodeURIComponent(config.link)}`)
-          } else {
-          nav(`/success?orderId=${order.id}&method=${data.method}`)
-            }
+      } else {
+         nav(`/success?orderId=${order.id}&method=${data.method}`)
+      }
 
     } catch (e: any) {
       console.error(e) 
@@ -94,17 +88,10 @@ export default function Checkout() {
     }
   }
 
-  // Si no ha cargado el curso aún, podríamos mostrar un spinner pequeño o esperar
-  if (!selectedCourseData && courseSlug && courses) {
-     // Opcional: Manejo si el slug es inválido
-  }
-
+  // Auto-rellenar datos si hay usuario
   useEffect(() => {
     if (user) {
-      // Unimos nombre y apellido porque tu base de datos los tiene separados
-      // pero el input del checkout pide "Nombre completo"
       const fullName = `${user.name} ${user.lastname || ''}`.trim()
-      
       setValue('buyerName', fullName)
       setValue('buyerEmail', user.email)
     }
@@ -132,7 +119,6 @@ export default function Checkout() {
                 </div>
                 <div>
                   <p className="text-xs text-blue-700 font-medium">Curso seleccionado</p>
-                  {/* Mostramos el Título real si existe, sino el slug */}
                   <p className="font-bold text-blue-900">
                     {selectedCourseData?.title || courseSlug || 'No seleccionado'}
                   </p>
@@ -192,10 +178,44 @@ export default function Checkout() {
                   </div>
                 </div>
 
+                {/* --- CHECKBOX TÉRMINOS Y CONDICIONES (NUEVO) --- */}
+                <div className="pt-2">
+                  <div className="flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="terms"
+                        type="checkbox"
+                        {...register('termsAccepted')}
+                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-600 cursor-pointer"
+                      />
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="terms" className="font-medium text-gray-700 cursor-pointer select-none">
+                        He leído y acepto los{" "}
+                        <Link 
+                          to="/terms" 
+                          target="_blank" 
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-semibold"
+                        >
+                          Términos y Condiciones
+                        </Link>
+                      </label>
+                      <p className="text-gray-500 text-xs mt-1">
+                        Incluye política de privacidad y normas de reembolso.
+                      </p>
+                    </div>
+                  </div>
+                  {errors.termsAccepted && (
+                    <p className="text-xs text-red-600 mt-2 font-medium bg-red-50 p-2 rounded border border-red-100 animate-fadeIn">
+                      ⚠️ {errors.termsAccepted.message}
+                    </p>
+                  )}
+                </div>
+
                 <Button 
                   type="submit" 
                   disabled={isSubmitting || !courseSlug}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg shadow-lg disabled:opacity-50"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg shadow-lg disabled:opacity-50 text-lg font-semibold"
                 >
                   {isSubmitting ? 'Procesando...' : 'Confirmar compra'}
                 </Button>
@@ -221,13 +241,11 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* 6. AQUI MOSTRAMOS EL TOTAL DINÁMICO */}
               <div className="flex justify-between items-end mb-6">
                 <span className="text-gray-900 font-bold text-lg">Total a pagar</span>
                 <div className="text-right">
                   <span className="text-sm text-gray-500 font-medium mr-1">{currentCurrency}</span>
                   <span className="text-3xl font-bold text-blue-600">
-                    {/* Formateo de moneda bonito */}
                     {currentPrice 
                       ? currentPrice.toLocaleString(isUsd ? 'en-US' : 'es-AR', { minimumFractionDigits: 0 }) 
                       : '---'}
@@ -241,9 +259,8 @@ export default function Checkout() {
                   <li>Acceso inmediato</li>
                   <li>Actualizaciones futuras</li>
                   <li>Soporte directo</li>
-                  {/* Opcional: Mostrar features reales del curso */}
                   {selectedCourseData?.features?.slice(0,2).map((f, i) => (
-                     <li key={i}>{f}</li>
+                      <li key={i}>{f}</li>
                   ))}
                 </ul>
               </div>

@@ -12,6 +12,7 @@ import MainLayout from '../components/MainLayout'
 import { useAuth } from '../context/AuthContext'
 import Courses from '../pages/Courses'
 import CourseDetails from '../pages/CourseDetails'
+import Terms from '../pages/Terms'
 
 // ... (El componente AuthGate sigue igual) ...
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -55,6 +56,7 @@ export function AppRouter() {
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/success" element={<ProtectedRoute><Success /></ProtectedRoute>} />
         <Route path="/failure" element={<ProtectedRoute><Failure /></ProtectedRoute>} />
+        <Route path="/terms" element={<ProtectedRoute><Terms /></ProtectedRoute>} />
         
 
         {/* --- ÁREA ADMIN --- */}
