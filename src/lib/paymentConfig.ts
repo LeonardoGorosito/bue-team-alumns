@@ -5,7 +5,7 @@ export const PAYMENT_METHODS = {
     label: 'Tarjeta de Crédito / Débito',
     description: 'Tarjetas (Automático).',
     type: 'REDIRECT',
-    link: '/instructivo-naranjax.pdf',    warning: null,
+    link: '/public/img/instructivo-naranjax.pdf',    warning: null,
   },
   TRANSFER: {
     label: 'Transferencia Bancaria',

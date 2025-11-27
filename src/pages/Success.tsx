@@ -4,14 +4,18 @@ import { toast } from 'sonner'
 import { api } from '../lib/axios'
 import { PAYMENT_METHODS } from '../lib/paymentConfig'
 import type { PaymentMethodKey } from '../lib/paymentConfig'
-import Button from '../components/Button' // Asumo que tienes este componente
+import Button from '../components/Button'
 
 export default function Success() {
   const [params] = useSearchParams()
   const methodKey = params.get('method') as PaymentMethodKey
   const orderId = params.get('orderId')
-  const payLink = params.get('payLink') // <--- RECUPERAMOS EL LINK SI VIENE DEL CHECKOUT
+  const payLink = params.get('payLink')
   
+  // --- 1. DETECTAR SI ES PDF ---
+  // Si payLink existe y termina en .pdf, activamos el modo "Instructivo"
+  const isPdf = payLink?.toLowerCase().endsWith('.pdf')
+
   const [uploading, setUploading] = useState(false)
   const [fileSent, setFileSent] = useState(false)
 
@@ -77,19 +81,34 @@ export default function Success() {
 
               {/* --- ZONA DE INFORMACIÓN DE PAGO --- */}
               
-              {/* CASO A: Es un Link de Pago (Tipfunder / MP) */}
+              {/* CASO A: Es un Link de Pago (Tipfunder) O un PDF (Naranja X) */}
               {payLink && (
                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-center">
-                    <h3 className="font-bold text-blue-900 mb-2">Paso 1: Realizar Pago</h3>
+                    {/* Título dinámico */}
+                    <h3 className="font-bold text-blue-900 mb-2">
+                        {isPdf ? 'Paso 1: Descargar Instructivo' : 'Paso 1: Realizar Pago'}
+                    </h3>
+                    
                     <p className="text-sm text-blue-800 mb-4">
-                        Haz clic abajo para pagar en {config?.label}.<br/>
+                        {isPdf 
+                          ? 'Descarga el PDF, escanea el QR o usa los datos para transferir.' 
+                          : `Haz clic abajo para pagar en ${config?.label}.`
+                        }
+                        <br/>
                         <span className="font-semibold">¡No cierres esta pestaña!</span> Debes volver para subir la captura.
                     </p>
-                    <a href={decodeURIComponent(payLink)} target="_blank" rel="noreferrer">
-                        <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700 text-white">
-                            Ir a Pagar ➜
-                        </Button>
-                    </a>
+
+                    <a 
+    href={decodeURIComponent(payLink)} 
+    target="_blank" 
+    rel="noreferrer"
+    // SI ES PDF, LE FORZAMOS EL NOMBRE CON EXTENSIÓN. SI NO, LO DEJAMOS UNDEFINED.
+    download={isPdf ? "instructivo-naranjax.pdf" : undefined} 
+>
+    <Button className={`w-full justify-center text-white ${isPdf ? 'bg-orange-600 hover:bg-orange-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
+       {isPdf ? 'Descargar PDF 📄' : 'Ir a Pagar ➜'}
+    </Button>
+</a>
                  </div>
               )}
 
