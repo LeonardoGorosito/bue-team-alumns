@@ -15,10 +15,11 @@ interface Order {
   course: { 
     title: string
     slug: string
+    accessLink?: string | null // <--- 1. Agregamos este campo opcional
   }
   payments: {
     method: string
-    status: string // Aquí vendrá 'PENDING_REVIEW'
+    status: string
     receiptUrl: string | null
   }[]
 }
@@ -28,15 +29,11 @@ const fetchMyOrders = async (): Promise<Order[]> => {
   return data
 }
 
-// 1. HELPER NUEVO: Detecta si ya subió comprobante
 const isUnderReview = (order: Order) => {
-  // Está pendiente la orden Y tiene al menos un pago en revisión
   return order.status === 'PENDING' && order.payments.some(p => p.status === 'PENDING_REVIEW')
 }
 
-// 2. BADGE MEJORADO: Ahora soporta "En Revisión"
 const getStatusBadge = (order: Order) => {
-  // Si está en revisión (caso especial)
   if (isUnderReview(order)) {
     return (
       <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200 animate-pulse-slow">
@@ -54,7 +51,7 @@ const getStatusBadge = (order: Order) => {
   
   const labels = {
     PAID: "Aprobado",
-    PENDING: "Pago Pendiente", // Cambio de texto para ser más claro
+    PENDING: "Pago Pendiente",
     REJECTED: "Rechazado",
     CANCELLED: "Cancelado"
   }
@@ -81,7 +78,6 @@ export default function Account() {
     return {
       totalPurchases: orders.length,
       activeCourses: orders.filter(o => o.status === 'PAID').length,
-      // Contamos como pendientes solo las que requieren acción del usuario
       pending: orders.filter(o => o.status === 'PENDING' && !isUnderReview(o)).length,
     }
   }, [orders])
@@ -115,7 +111,6 @@ export default function Account() {
 
         {/* --- STATS CARDS --- */}
         <div className="grid grid-cols-1 gap-4 mb-8 sm:grid-cols-3">
-          {/* ... (Tus cards de stats siguen igual, ya actualicé la lógica de 'stats' arriba) ... */}
            <Card className="bg-white border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -159,7 +154,6 @@ export default function Account() {
           ) : (
             <div className="divide-y divide-gray-100">
               {orders.map(order => {
-                // Calculamos si está en revisión para esta orden específica
                 const underReview = isUnderReview(order)
 
                 return (
@@ -183,26 +177,38 @@ export default function Account() {
                     {/* Estado y Acción */}
                     <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
                       
-                      {/* Pasamos la orden completa para que el badge detecte si está en revisión */}
                       {getStatusBadge(order)}
 
-                      {/* --- LÓGICA DE BOTONES --- */}
+                      {/* --- 2. LÓGICA DE BOTONES INTELIGENTE --- */}
                       
-                      {/* 1. APROBADO */}
+                      {/* CASO: APROBADO */}
                       {order.status === 'PAID' && (
-                        <Link to={`/courses/${order.course.slug}`} className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
-                          Ir al Curso →
-                        </Link>
+                        // Verificamos si existe el accessLink
+                        order.course.accessLink ? (
+                          <a 
+                            href={order.course.accessLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-blue-600 transition-all shadow-sm flex items-center gap-1"
+                          >
+                            Ir al Curso ↗
+                          </a>
+                        ) : (
+                          // Si NO hay link externo, usamos el link interno
+                          <Link to={`/courses/${order.course.slug}`} className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            Ver Detalles →
+                          </Link>
+                        )
                       )}
 
-                      {/* 2. PENDIENTE Y EN REVISIÓN (Ya subió foto) */}
+                      {/* CASO: EN REVISIÓN */}
                       {underReview && (
                         <div className="text-xs text-blue-600 font-medium px-3">
                           Estamos verificando tu pago...
                         </div>
                       )}
 
-                      {/* 3. PENDIENTE Y SIN FOTO (Aún debe subir) */}
+                      {/* CASO: PENDIENTE DE PAGO */}
                       {order.status === 'PENDING' && !underReview && (
                         <button 
                           onClick={() => handleResumeOrder(order)}
@@ -212,7 +218,7 @@ export default function Account() {
                         </button>
                       )}
 
-                       {/* 4. RECHAZADO */}
+                       {/* CASO: RECHAZADO */}
                        {order.status === 'REJECTED' && (
                         <a href="#" className="text-sm text-gray-500 underline">Ayuda</a>
                       )}
