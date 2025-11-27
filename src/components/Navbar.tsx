@@ -36,7 +36,7 @@ export default function Navbar() {
             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
               <img className="w-6 h-6" src="/img/logo-blu_7eam.png" alt="Logo" />
             </div>
-            <span className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
+            <span className="font-bold text-xl text-blue-600 group-hover:text-gray-900 transition-colors">
               Blue 7eam Alumnas
             </span>
           </Link>
