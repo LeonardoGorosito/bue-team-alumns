@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react' // <--- 1. IMPORTAR useState
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Card from '../components/Card'
 import { useAuth } from '../context/AuthContext'
@@ -6,7 +6,7 @@ import { api } from '../lib/axios'
 import { useQuery } from '@tanstack/react-query'
 import { PAYMENT_METHODS } from '../lib/paymentConfig'
 import type { PaymentMethodKey } from '../lib/paymentConfig'
-import CourseAccessModal from '../components/CourseAccessModal' // <--- 2. IMPORTAR EL MODAL
+import CourseAccessModal from '../components/CourseAccessModal'
 
 // Definimos el tipo para los links JSON
 interface AccessLinkItem {
@@ -14,15 +14,16 @@ interface AccessLinkItem {
   url: string
 }
 
-// Interfaz ajustada con los campos nuevos
+// Interfaz ajustada
 interface Order {
   id: string
   status: 'PENDING' | 'PAID' | 'REJECTED' | 'CANCELLED'
   createdAt: string
+  // 🔥 IMPORTANTE: Agregamos 'notes' para leer el método guardado
+  notes?: string | null 
   course: { 
     title: string
     slug: string
-    // Campos para los links
     accessLink?: string | null 
     accessLinks?: AccessLinkItem[] | null 
   }
@@ -76,7 +77,6 @@ export default function Account() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  // 3. ESTADOS PARA EL MODAL
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedCourseLinks, setSelectedCourseLinks] = useState<{ title: string, links: AccessLinkItem[] } | null>(null)
 
@@ -95,9 +95,15 @@ export default function Account() {
     }
   }, [orders])
 
+  // 🔥 ESTA ES LA FUNCIÓN CORREGIDA
   const handleResumeOrder = (order: Order) => {
+    // 1. Intentamos leer la nota "Método seleccionado: USDT"
+    const noteMethod = order.notes?.split(': ')[1]?.trim()
+    
+    // 2. Si no hay nota, buscamos en pagos, y si no, fallback a TIPFUNDER
     const lastPayment = order.payments?.[0]
-    const methodKey = (lastPayment?.method || 'TIPFUNDER') as PaymentMethodKey
+    const methodKey = (noteMethod || lastPayment?.method || 'TIPFUNDER') as PaymentMethodKey
+    
     const config = PAYMENT_METHODS[methodKey]
     
     let url = `/success?orderId=${order.id}&method=${methodKey}`
@@ -107,24 +113,20 @@ export default function Account() {
     navigate(url)
   }
 
-  // 4. LÓGICA INTELIGENTE DE ACCESO
   const handleAccessCourse = (order: Order) => {
     const { accessLinks, accessLink, slug, title } = order.course
 
-    // A. Múltiples links (JSON) -> Abrir Modal
     if (accessLinks && Array.isArray(accessLinks) && accessLinks.length > 0) {
       setSelectedCourseLinks({ title, links: accessLinks })
       setModalOpen(true)
       return
     }
 
-    // B. Un solo link externo (Legacy) -> Abrir directo
     if (accessLink) {
       window.open(accessLink, '_blank', 'noopener,noreferrer')
       return
     }
 
-    // C. Sin link externo -> Navegación interna
     navigate(`/courses/${slug}`)
   }
 
@@ -143,7 +145,6 @@ export default function Account() {
           </div>
         </div>
 
-        {/* 5. MODAL (Renderizado Condicional) */}
         {selectedCourseLinks && (
           <CourseAccessModal 
             isOpen={modalOpen}
@@ -222,7 +223,6 @@ export default function Account() {
                       
                       {getStatusBadge(order)}
 
-                      {/* --- 6. BOTÓN INTELIGENTE UNIFICADO --- */}
                       {order.status === 'PAID' && (
                         <button 
                           onClick={() => handleAccessCourse(order)}
