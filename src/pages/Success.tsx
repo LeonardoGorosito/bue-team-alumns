@@ -21,7 +21,7 @@ export default function Success() {
 
   const config = methodKey ? PAYMENT_METHODS[methodKey] : null
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+ const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     
     if (!file || !orderId) {
@@ -35,7 +35,13 @@ export default function Success() {
     setUploading(true)
     try {
       await api.post(`/orders/${orderId}/receipt`, formData) 
-      toast.success('¡Comprobante enviado! Lo revisaremos pronto.')
+      
+      // ✅ AQUÍ ESTÁ EL MENSAJE PERSONALIZADO QUE PEDISTE
+      toast.success('¡Muchas gracias por tu compra!', {
+        description: 'Hemos recibido tu comprobante. En breves recibirás la aprobación de tu acceso.',
+        duration: 5000, // Dura 5 segundos
+      })
+      
       setFileSent(true)
     } catch (error: any) {
       console.error(error)
