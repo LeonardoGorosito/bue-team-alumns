@@ -1,3 +1,4 @@
+import { useState } from 'react' // <--- 1. Importamos useState
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,16 +18,25 @@ type FormData = z.infer<typeof schema>
 export default function Login() {
   const { login } = useAuth()
   const nav = useNavigate()
+  
+  // 2. Estado para controlar si se ve la contraseña
+  const [showPassword, setShowPassword] = useState(false)
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ 
     resolver: zodResolver(schema) 
   })
 
   const onSubmit = async (d: FormData) => {
     try { 
-      await login(d.email, d.password)
+      // 3. TRIM DE ESPACIOS: Limpiamos el email antes de enviarlo
+      const cleanEmail = d.email.trim()
+      
+      await login(cleanEmail, d.password)
       nav('/account') 
     }
     catch (e: any) { 
+      // 4. Log para debugging (Solo tú lo ves en consola F12)
+      console.error("Error de Login:", e)
       toast.error(e?.response?.data?.message || 'Credenciales inválidas') 
     }
   }
@@ -46,7 +56,6 @@ export default function Login() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Bienvenid@!
             </h2>
-            
           </div>
 
           {/* Alert informativo */}
@@ -56,7 +65,7 @@ export default function Login() {
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
               <p className="text-sm text-blue-900">
-                Ingreso y regístro solo exclusivo a las que hayan comprado una Master en <a href='https://blue7eam.com'>Blue Team.</a> 
+                Ingreso y registro solo exclusivo a las que hayan comprado una Master en <a href='https://blue7eam.com' className="underline hover:text-blue-700">Blue Team.</a> 
               </p>
             </div>
           </div>
@@ -87,12 +96,40 @@ export default function Login() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Contraseña
               </label>
-              <Input 
-                type="password" 
-                {...register('password')} 
-                className="w-full"
-                placeholder="••••••••"
-              />
+              
+              {/* 5. WRAPPER RELATIVO PARA EL BOTÓN DEL OJO */}
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} // <--- Cambia dinámicamente
+                  {...register('password')} 
+                  className="w-full pr-10" // <--- Padding a la derecha para que el texto no toque el icono
+                  placeholder="••••••••"
+                />
+                
+                {/* BOTÓN TOGGLE VISIBILIDAD */}
+                <button
+                  type="button" // Importante para que no haga submit
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                >
+                  {showPassword ? (
+                    // Icono Ojo Abierto (Ver)
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  ) : (
+                    // Icono Ojo Cerrado (Ocultar)
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.68 0 1.356-.06 2-.17"/>
+                      <line x1="2" y1="2" x2="22" y2="22"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+
               {errors.password && (
                 <p className="mt-1.5 text-xs text-red-600 flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">

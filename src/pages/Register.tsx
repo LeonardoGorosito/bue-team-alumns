@@ -1,3 +1,4 @@
+import { useState } from 'react' // <--- 1. Importar useState
 import { useForm, Controller } from 'react-hook-form'
 import type { SubmitHandler, Resolver } from 'react-hook-form'
 import { z } from 'zod'
@@ -8,25 +9,18 @@ import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
-
-// --- CAMBIO 1: Importamos useQuery y la función fetchCourses ---
 import { useQuery } from '@tanstack/react-query'
-import { fetchCourses } from './Courses' // Asumiendo que están en la misma carpeta, ajusta la ruta si es necesario
-// -------------------------------------------------------------
-
-// --- CAMBIO 2: Borramos MASTER_OPTIONS hardcodeado ---
-// Ya no necesitamos la constante fija aquí
-// ----------------------------------------------------
+import { fetchCourses } from './Courses'
 
 const schema = z.object({
-  name: z.string().min(2, 'El nombre completo es obligatorio y debe tener al menos 2 caracteres'),
+  name: z.string().min(2, 'El nombre completo es obligatorio'),
   lastname: z.string().min(2, 'El apellido es obligatorio'),
-  telegram: z.string().regex(/^@?(\w){5,}/, 'El usuario de Telegram no es válido (ej: @miusuario)'),
+  telegram: z.string().regex(/^@?(\w){5,}/, 'El usuario de Telegram no es válido'),
   age: z.coerce.number().min(18, 'Debes ser mayor de 18 años').max(100, 'Edad inválida').optional(), 
   master: z.array(z.string()).min(1, 'Debes seleccionar al menos una Máster adquirida'), 
   email: z.string().email('Ingresa un email válido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  passwordConfirm: z.string().min(6, 'Debes confirmar la contraseña'),
+  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  passwordConfirm: z.string().min(6, 'Confirma la contraseña'),
 })
 .superRefine(({ password, passwordConfirm }, ctx) => {
   if (password !== passwordConfirm) {
@@ -44,19 +38,18 @@ export default function Register() {
   const { register: registerUser } = useAuth() 
   const nav = useNavigate()
   
-  // --- CAMBIO 3: Traemos los cursos de la base de datos ---
+  // 2. Estado para ver contraseña en el registro también
+  const [showPassword, setShowPassword] = useState(false)
+
   const { data: courses, isLoading: isLoadingCourses } = useQuery({
     queryKey: ['courses'],
     queryFn: fetchCourses,
   })
 
-  // Transformamos los cursos al formato que necesita react-select { value, label }
-  // Usamos el 'slug' como value para guardar en la DB, y 'title' como label para mostrar
   const dynamicOptions = courses?.map(course => ({
     value: course.slug, 
     label: course.title
   })) || []
-  // --------------------------------------------------------
 
   const {
     register,
@@ -65,29 +58,40 @@ export default function Register() {
     control,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(schema) as Resolver<RegisterFormData>,
-    defaultValues: {
-      name: '',
-      lastname: '',
-      telegram: '',
-      age: undefined,
-      master: [],
-      email: '',
-      password: '',
-      passwordConfirm: '',
-    },
     mode: 'onBlur',
   });
 
   const onSubmit: SubmitHandler<RegisterFormData> = async (d) => {
     try { 
-      await registerUser(d.name, d.lastname, d.age, d.telegram, d.master, d.email, d.password)
+      // 3. IMPORTANTISIMO: Trim al registrarse también.
+      // Así guardamos el email limpio en la base de datos.
+      const cleanEmail = d.email.trim()
+      
+      await registerUser(d.name, d.lastname, d.age, d.telegram, d.master, cleanEmail, d.password)
+      
       toast.success('Registro exitoso. ¡Bienvenid@!')
       nav('/account') 
     }
     catch (e: any) { 
-      toast.error(e?.response?.data?.message || 'Error al registrar el usuario. Intenta de nuevo.') 
+      toast.error(e?.response?.data?.message || 'Error al registrar. Intenta de nuevo.') 
     }
   }
+
+  // Helper para el icono del ojo (para no repetir código)
+  const EyeIcon = ({ visible }: { visible: boolean }) => (
+    <button
+      type="button"
+      onClick={() => setShowPassword(!visible)}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none z-10"
+      tabIndex={-1} // Para que no moleste al tabular
+    >
+      {visible ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.68 0 1.356-.06 2-.17"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+      )}
+    </button>
+  )
 
   return (
     <div className="w-full max-w-md">
@@ -130,8 +134,8 @@ export default function Register() {
           {/* Edad y Telegram */}
           <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Usuario de Telegram (@)</label>
-                <Input type="text" {...register('telegram')} placeholder="@usuario_telegram" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Telegram (@)</label>
+                <Input type="text" {...register('telegram')} placeholder="@usuario" />
                 {errors.telegram && (<p className="mt-1.5 text-xs text-red-600">{errors.telegram.message}</p>)}
               </div>
               <div>
@@ -145,7 +149,7 @@ export default function Register() {
               </div>
           </div>
 
-          {/* Master Adquirida (Dinámico desde DB) */}
+          {/* Master Adquirida */}
           <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                   ¿Qué **Máster** adquiriste?
@@ -158,21 +162,16 @@ export default function Register() {
                       <Select
                           {...field}
                           isMulti 
-                          // --- CAMBIO 4: Usamos las opciones dinámicas y agregamos estado de carga ---
                           options={dynamicOptions} 
                           isLoading={isLoadingCourses}
                           loadingMessage={() => "Cargando cursos..."}
                           noOptionsMessage={() => "No se encontraron cursos activos"}
-                          // --------------------------------------------------------------------------
-                          
                           onChange={(selectedOptions) => {
                               field.onChange(selectedOptions.map(option => option.value));
                           }}
-                          // Importante: filtrar sobre dynamicOptions para mostrar los seleccionados correctamente
                           value={dynamicOptions.filter(option => field.value?.includes(option.value))}
-                          
                           classNamePrefix="react-select"
-                          className={`mt-1 text-sm ${errors.master ? 'border border-red-500 rounded-md' : ''}`}
+                          className={`mt-1 text-sm ${errors.master ? 'z-30 border border-red-500 rounded-md' : ''}`}
                           placeholder="Selecciona una o más..."
                       />
                   )}
@@ -181,27 +180,44 @@ export default function Register() {
               {errors.master && (<p className="mt-1.5 text-xs text-red-600">{errors.master.message}</p>)}
           </div>
           
-          {/* Contraseñas */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
-            <Input type="password" {...register('password')} placeholder="••••••••" />
-            {errors.password && (<p className="mt-1.5 text-xs text-red-600">{errors.password.message}</p>)}
-          </div>
+          {/* Contraseñas con OJITO */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  {...register('password')} 
+                  placeholder="••••••••" 
+                  className="pr-10"
+                />
+                <EyeIcon visible={showPassword} />
+              </div>
+              {errors.password && (<p className="mt-1.5 text-xs text-red-600">{errors.password.message}</p>)}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Confirmar Contraseña</label>
-            <Input type="password" {...register('passwordConfirm')} placeholder="••••••••" />
-            {errors.passwordConfirm && (<p className="mt-1.5 text-xs text-red-600">{errors.passwordConfirm.message}</p>)}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Confirmar</label>
+              <div className="relative">
+                <Input 
+                  type={showPassword ? "text" : "password"} 
+                  {...register('passwordConfirm')} 
+                  placeholder="••••••••" 
+                  className="pr-10"
+                />
+                <EyeIcon visible={showPassword} />
+              </div>
+              {errors.passwordConfirm && (<p className="mt-1.5 text-xs text-red-600">{errors.passwordConfirm.message}</p>)}
+            </div>
           </div>
 
           <Button 
             type="submit" 
-            disabled={isSubmitting || isLoadingCourses} // Deshabilitar si se está enviando O cargando cursos
-            className="w-full bg-blue-600 hover:bg-white-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-lg shadow-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+            disabled={isSubmitting || isLoadingCourses}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-lg shadow-blue-600/30 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 Registrando...
               </span>
             ) : (
