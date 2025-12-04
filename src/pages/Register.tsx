@@ -173,6 +173,13 @@ export default function Register() {
                           classNamePrefix="react-select"
                           className={`mt-1 text-sm ${errors.master ? 'z-30 border border-red-500 rounded-md' : ''}`}
                           placeholder="Selecciona una o más..."
+
+                          styles={{
+                            menu: (base) => ({ 
+                          ...base, 
+                          zIndex: 50 // Esto fuerza al menú a estar encima de los ojitos (que son z-10)
+                })
+            }}
                       />
                   )}
               />
