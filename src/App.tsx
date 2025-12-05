@@ -2,7 +2,6 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
 import { AppRouter } from './routes/Router'
 // 1. Importas el componente nuevo
-import { PromoModal } from './components/PromoModal' 
 
 export default function App() {
   return (
@@ -12,7 +11,6 @@ export default function App() {
       
       {/* 2. Lo agregas aquí al final. 
           Como tiene position:fixed, flotará sobre todo lo demás. */}
-      <PromoModal /> 
       
     </AuthProvider>
   )
