@@ -1,11 +1,11 @@
-import { useState } from 'react' // <--- 1. Importamos useState
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../components/Input'
 import Button from '../components/Button'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom' // Asegúrate de tener Link importado
 import { toast } from 'sonner'
 
 const schema = z.object({ 
@@ -19,7 +19,6 @@ export default function Login() {
   const { login } = useAuth()
   const nav = useNavigate()
   
-  // 2. Estado para controlar si se ve la contraseña
   const [showPassword, setShowPassword] = useState(false)
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ 
@@ -28,14 +27,11 @@ export default function Login() {
 
   const onSubmit = async (d: FormData) => {
     try { 
-      // 3. TRIM DE ESPACIOS: Limpiamos el email antes de enviarlo
       const cleanEmail = d.email.trim()
-      
       await login(cleanEmail, d.password)
       nav('/account') 
     }
     catch (e: any) { 
-      // 4. Log para debugging (Solo tú lo ves en consola F12)
       console.error("Error de Login:", e)
       toast.error(e?.response?.data?.message || 'Credenciales inválidas') 
     }
@@ -44,8 +40,9 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Card principal */}
+        
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-blue-100">
+          
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -92,40 +89,38 @@ export default function Login() {
               )}
             </div>
 
+            {/* --- AQUÍ EMPIEZA EL CAMBIO --- */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
+              {/* 1. Usamos Flexbox para separar Label a la izq y Link a la derecha */}
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Contraseña
+                </label>
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
               
-              {/* 5. WRAPPER RELATIVO PARA EL BOTÓN DEL OJO */}
               <div className="relative">
                 <Input 
-                  type={showPassword ? "text" : "password"} // <--- Cambia dinámicamente
+                  type={showPassword ? "text" : "password"}
                   {...register('password')} 
-                  className="w-full pr-10" // <--- Padding a la derecha para que el texto no toque el icono
+                  className="w-full pr-10"
                   placeholder="••••••••"
                 />
                 
-                {/* BOTÓN TOGGLE VISIBILIDAD */}
                 <button
-                  type="button" // Importante para que no haga submit
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
                 >
                   {showPassword ? (
-                    // Icono Ojo Abierto (Ver)
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                   ) : (
-                    // Icono Ojo Cerrado (Ocultar)
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
-                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
-                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.68 0 1.356-.06 2-.17"/>
-                      <line x1="2" y1="2" x2="22" y2="22"/>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.68 0 1.356-.06 2-.17"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
                   )}
                 </button>
               </div>
@@ -139,6 +134,7 @@ export default function Login() {
                 </p>
               )}
             </div>
+            {/* --- FIN DEL CAMBIO --- */}
 
             <Button 
               type="submit" 

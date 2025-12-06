@@ -13,6 +13,8 @@ import { useAuth } from '../context/AuthContext'
 import Courses from '../pages/Courses'
 import CourseDetails from '../pages/CourseDetails'
 import Terms from '../pages/Terms'
+import ForgotPassword from '../pages/ForgotPassword'
+import ResetPassword from '../pages/ResetPassword'
 
 // ... (El componente AuthGate sigue igual) ...
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -77,6 +79,23 @@ export function AppRouter() {
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/forgot-password" 
+        element={ 
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">{/* Usamos AuthGate para que si ya está logueada no vea esto */}
+        <AuthGate> <ForgotPassword /> </AuthGate>
+      </div>
+      }  />
+
+      <Route 
+  path="/reset-password" 
+  element={
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <AuthGate>
+         <ResetPassword />
+      </AuthGate>
+    </div>
+  } 
+/>
     </Routes>
   )
 }
