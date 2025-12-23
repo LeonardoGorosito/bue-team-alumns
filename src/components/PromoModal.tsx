@@ -5,47 +5,47 @@ export const PromoModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Cambiamos la clave para que todas las alumnas lo vean aunque hayan visto el anterior
+  const PROMO_KEY = 'promo_navidad_2024_v1';
+
   useEffect(() => {
-    const now = new Date();
-    const deadline = new Date();
-    deadline.setHours(23, 59, 59, 999);
+    const hasSeenPromo = localStorage.getItem(PROMO_KEY);
 
-    // Usamos una clave diferente para pruebas, puedes volver a 'seen_moonlit_promo_v1' después
-    const hasSeenPromo = localStorage.getItem('seen_moonlit_promo_white_theme');
-
-    if (!hasSeenPromo && now < deadline) {
-      const timer = setTimeout(() => setIsOpen(true), 1500);
+    if (!hasSeenPromo) {
+      // Un poco más de delay para que cargue bien la página antes del anuncio
+      const timer = setTimeout(() => setIsOpen(true), 2000);
       return () => clearTimeout(timer);
     }
   }, []);
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem('seen_moonlit_promo_white_theme', 'true');
+    localStorage.setItem(PROMO_KEY, 'true');
   };
 
   const handleNavigate = () => {
     handleClose();
-    navigate('/courses/moonlite-lite-master');
+    // Redirigir a los cursos o a una oferta específica
+    navigate('/courses');
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 font-sans">
-      {/* Backdrop */}
+      {/* Backdrop con un tono más festivo */}
       <div 
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300" 
+        className="absolute inset-0 bg-red-950/40 backdrop-blur-sm transition-opacity duration-300" 
         onClick={handleClose}
       />
 
-      {/* Modal Container - FORZADO A FONDO BLANCO */}
-      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-blue-500/30 animate-in fade-in zoom-in duration-300 transform">
+      {/* Modal Container */}
+      <div className="relative bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-red-100 animate-in fade-in zoom-in duration-300 transform">
         
-        {/* Botón Cerrar (X) - Color ajustado para fondo blanco */}
+        {/* Botón Cerrar */}
         <button 
           onClick={handleClose}
-          className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/10 hover:bg-black/20 text-white transition-colors"
+          className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-500 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 6 6 18"/>
@@ -53,63 +53,69 @@ export const PromoModal = () => {
           </svg>
         </button>
 
-        {/* Header Azul Superior (Se mantiene igual) */}
-        <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-blue-700 p-6 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-30">
+        {/* Header Navideño (Rojo Navidad) */}
+        <div className="bg-gradient-to-br from-red-600 via-red-500 to-red-700 p-8 text-center relative overflow-hidden">
+          {/* Patrón de "Nieve" simplificado */}
+          <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
              <svg className="w-full h-full" viewBox="0 0 100 100" fill="white">
-                <circle cx="20" cy="20" r="1" />
-                <circle cx="50" cy="10" r="1" />
-                <circle cx="80" cy="40" r="2" />
-                <circle cx="10" cy="80" r="1" />
+                <circle cx="10" cy="10" r="1.5" />
+                <circle cx="30" cy="40" r="1" />
+                <circle cx="50" cy="20" r="1.5" />
+                <circle cx="70" cy="60" r="1" />
+                <circle cx="90" cy="30" r="1.5" />
+                <circle cx="20" cy="80" r="1" />
+                <circle cx="60" cy="90" r="1.2" />
              </svg>
           </div>
 
-          <div className="relative z-10 flex justify-center mb-2">
-            <div className="bg-white/10 p-3 rounded-full backdrop-blur-md shadow-lg border border-white/20">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          <div className="relative z-10 flex justify-center mb-3">
+            <div className="bg-white/20 p-4 rounded-full backdrop-blur-md border border-white/30 shadow-inner">
+              {/* Icono de Regalo */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 12v10H4V12"/>
+                <path d="M2 7h20v5H2z"/>
+                <path d="M12 22V7"/>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
               </svg>
             </div>
           </div>
           
-          <h3 className="relative z-10 text-white font-extrabold text-2xl tracking-tight">
-            MASTER MOONLIT
+          <h3 className="relative z-10 text-white font-black text-3xl tracking-tight italic">
+            ¡OFERTA NAVIDEÑA!
           </h3>
-          <p className="relative z-10 text-blue-200 text-xs uppercase font-semibold tracking-widest mt-1">
-            Oferta Flash
+          <p className="relative z-10 text-red-100 text-sm font-bold uppercase tracking-widest mt-1">
+            Santa llegó antes al Blue Team
           </p>
         </div>
 
-        {/* Contenido Inferior - TEXTO OSCURO PARA FONDO BLANCO */}
-        <div className="p-6 text-center space-y-5">
-          <div className="space-y-2">
-            {/* Texto principal en gris oscuro */}
-            <p className="text-gray-800 text-lg">
-              Esta oportunidad desaparecerá al dar las <span className="text-red-600 font-bold bg-red-100 px-1 rounded">00:00 hs</span>.
-            </p>
-            {/* Texto secundario en gris medio */}
-            <p className="text-sm text-gray-600">
-              Accede al contenido exclusivo y únete al equipo antes de que cierre la inscripción.
+        {/* Contenido */}
+        <div className="p-8 text-center space-y-6">
+          <div className="space-y-3">
+            <h4 className="text-2xl font-bold text-gray-900">
+              ¡Todo está rebajado! 🎁
+            </h4>
+            <p className="text-gray-600 leading-relaxed">
+              Es el momento de invertir en tu futuro. Aprovecha nuestros descuentos exclusivos en todos los Masters por tiempo limitado.
             </p>
           </div>
 
-          {/* Botón de Acción Principal (Se mantiene azul) */}
+          {/* Botón de Acción (Verde Navidad) */}
           <button
             onClick={handleNavigate}
-            className="group w-full py-3.5 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            className="group w-full py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-2xl shadow-xl shadow-green-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
           >
-            <span>Quiero mi acceso</span>
-            <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
+            <span>Ver Cursos con Descuento</span>
+            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
           </button>
           
-          {/* Botón secundario en gris para fondo blanco */}
           <button 
             onClick={handleClose}
-            className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-sm text-gray-400 hover:text-gray-600 transition-colors font-medium"
           >
-            No me interesa por ahora
+            Quizás más tarde
           </button>
         </div>
       </div>
