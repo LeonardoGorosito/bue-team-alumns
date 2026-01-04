@@ -20,7 +20,8 @@ export default function CourseDetails() {
   const course = courses?.find(c => c.slug === slug)
 
   const handleBuyClick = () => {
-    if (slug === 'atlas-modele') {
+    // Si estamos viendo el Master en Atlas, disparamos el modal de Fansly
+    if (slug === 'master-en-atlas') {
       setIsFanslyModalOpen(true)
     } else {
       setIsModalOpen(true)
@@ -68,7 +69,6 @@ export default function CourseDetails() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       
-      {/* Modal Estándar */}
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -87,7 +87,6 @@ export default function CourseDetails() {
         confirmText="Entendido, continuar"
       />
 
-      {/* Modal Fansly para Atlas */}
       <FanslyValidationModal 
         isOpen={isFanslyModalOpen}
         onClose={() => setIsFanslyModalOpen(false)}

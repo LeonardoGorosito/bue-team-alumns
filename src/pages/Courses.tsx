@@ -3,7 +3,7 @@ import Card from '../components/Card'
 import Button from '../components/Button'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/axios'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import ConfirmationModal from '../components/ConfirmationModal'
 import FanslyValidationModal from '../components/FanslyValidationModal'
 
@@ -31,25 +31,34 @@ export default function Courses() {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isFanslyModalOpen, setIsFanslyModalOpen] = useState(false)
-  const [selectedCourseSlug, setSelectedCourseSlug] = useState<string | null>(null)
+  const [redirectPath, setRedirectPath] = useState<string>('')
 
   const { data: courses, isLoading, isError } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: fetchCourses,
   })
 
-  const handleBuyClick = (slug: string) => {
-    setSelectedCourseSlug(slug)
+  // Maneja tanto el clic de "Comprar" como el de "Ver Detalles"
+  const handleActionClick = (slug: string, type: 'buy' | 'details') => {
+    const targetPath = type === 'buy' ? `/checkout?course=${slug}` : `/courses/${slug}`
+    setRedirectPath(targetPath)
+
+    // Si es el curso de Atlas, disparamos el modal especial de Fansly
     if (slug === 'master-en-atlas') {
       setIsFanslyModalOpen(true)
     } else {
-      setIsModalOpen(true)
+      // Para otros cursos: si es comprar mostramos el modal estándar, si es detalles navegamos directo
+      if (type === 'buy') {
+        setIsModalOpen(true)
+      } else {
+        navigate(targetPath)
+      }
     }
   }
 
-  const handleConfirmBuy = () => {
-    if (selectedCourseSlug) {
-      navigate(`/checkout?course=${selectedCourseSlug}`)
+  const handleConfirmAction = () => {
+    if (redirectPath) {
+      navigate(redirectPath)
     }
     setIsModalOpen(false)
     setIsFanslyModalOpen(false)
@@ -61,11 +70,10 @@ export default function Courses() {
   return (
     <div className="min-h-screen bg-gray-50">
       
-      {/* Modal Estándar */}
       <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmBuy}
+        onConfirm={handleConfirmAction}
         title="Información Importante"
         message={
           <div className="space-y-2">
@@ -76,11 +84,10 @@ export default function Courses() {
         confirmText="Entendido, continuar"
       />
 
-      {/* Modal Especial Fansly para Atlas */}
       <FanslyValidationModal 
         isOpen={isFanslyModalOpen}
         onClose={() => setIsFanslyModalOpen(false)}
-        onConfirm={handleConfirmBuy}
+        onConfirm={handleConfirmAction}
       />
 
       <div className="max-w-6xl mx-auto px-4 py-16">
@@ -149,17 +156,19 @@ export default function Courses() {
                           </Button>
                       ) : (
                           <Button 
-                            onClick={() => handleBuyClick(c.slug)}
+                            onClick={() => handleActionClick(c.slug, 'buy')}
                             className="w-full sm:w-auto justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all transform hover:-translate-y-0.5"
                           >
                             Comprar Ahora
                           </Button>
                       )}
-                      <Link to={`/courses/${c.slug}`} className="w-full sm:w-auto block">
-                        <Button className="w-full justify-center bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-6 py-3 rounded-xl transition-all">
-                          Ver Detalles
-                        </Button>
-                      </Link>
+                      
+                      <Button 
+                        onClick={() => handleActionClick(c.slug, 'details')}
+                        className="w-full sm:w-auto justify-center bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-medium px-6 py-3 rounded-xl transition-all"
+                      >
+                        Ver Detalles
+                      </Button>
                     </div>
                   </div>
                 </div>
