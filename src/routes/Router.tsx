@@ -15,6 +15,7 @@ import CourseDetails from '../pages/CourseDetails'
 import Terms from '../pages/Terms'
 import ForgotPassword from '../pages/ForgotPassword'
 import ResetPassword from '../pages/ResetPassword'
+import AdminRevenue from '../pages/AdminRevenue'
 
 // ... (El componente AuthGate sigue igual) ...
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,12 @@ export function AppRouter() {
           path="/admin/students" 
           element={<ProtectedRoute roles={["ADMIN"]}><AdminStudents /></ProtectedRoute>} 
         />
+
+        {/* Recaudación */}
+        <Route 
+          path="/admin/revenue" 
+          element={<ProtectedRoute roles={["ADMIN"]}><AdminRevenue /></ProtectedRoute>} 
+        />
         
       </Route>
 
@@ -87,8 +94,8 @@ export function AppRouter() {
       }  />
 
       <Route 
-  path="/reset-password" 
-  element={
+    path="/reset-password" 
+    element={
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <AuthGate>
          <ResetPassword />
