@@ -114,7 +114,9 @@ export default function CourseDetails() {
           </div>
 
           <div className="p-8 sm:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            
+            {/* PARTE SUPERIOR (Grid original) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-12">
               <div className="lg:col-span-2 space-y-8">
                 <section>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Lo que aprenderás</h2>
@@ -129,12 +131,7 @@ export default function CourseDetails() {
                     ))}
                   </div>
                 </section>
-                <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Descripción detallada</h2>
-                  <div className="prose text-gray-600 whitespace-pre-line">
-                    {course.longDescription || "La descripción detallada de este curso estará disponible muy pronto."}
-                  </div>
-                </section>
+                {/* Aquí sacamos la descripción para que no se apriete */}
               </div>
 
               <div className="lg:col-span-1">
@@ -166,6 +163,15 @@ export default function CourseDetails() {
                 </div>
               </div>
             </div>
+
+            {/* PARTE INFERIOR (Nueva sección ancho completo) */}
+            <section className="w-full pt-8 border-t border-gray-100">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Descripción detallada</h2>
+              <div className="prose prose-lg max-w-none text-gray-600 whitespace-pre-wrap leading-relaxed">
+                {course.longDescription || "La descripción detallada de este curso estará disponible muy pronto."}
+              </div>
+            </section>
+
           </div>
         </div>
       </div>

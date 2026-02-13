@@ -1,83 +1,104 @@
-# Blue Team Alumns Platform
+# Blue Team Alumns — Frontend
 
-Plataforma educativa y de gestión de alumnas (CRM) construida con tecnologías modernas de React.
+Plataforma web frontend para la gestión y acceso a cursos (alumnas y panel administrativo). Este repositorio contiene la aplicación cliente construida con React + TypeScript y diseñada para integrarse con el backend (repo: `api-blue-team`).
 
-## 🚀 Descripción
+---
 
-Este proyecto es una aplicación web frontend diseñada para gestionar la venta y acceso a cursos (Masters), así como proporcionar herramientas administrativas para el seguimiento de alumnas y ventas.
+##  Descripción
 
-La aplicación cuenta con dos áreas principales:
-- **Portal de Alumnas:** Donde las usuarias pueden registrarse, ver cursos, realizar compras y acceder a su contenido.
-- **Panel de Administración (CRM):** Donde los administradores pueden ver el historial de ventas y gestionar la base de datos de alumnas.
+Aplicación de frontend que permite a las usuarias registrarse, comprar cursos y acceder al contenido, y a los administradores gestionar alumnos, ver ventas y estadísticas desde un panel (CRM).
 
-## 🛠️ Tech Stack
+## 🧩 Características principales
 
-El proyecto utiliza un stack moderno y optimizado para rendimiento y experiencia de desarrollador:
+- Registro, login y gestión de perfil.
+- Visualización de catálogo de cursos y detalles.
+- Checkout y flujo de pagos (integrado con el backend).
+- Panel administrativo para ver ventas y gestionar alumnas.
+- Rutas protegidas según roles (STUDENT / ADMIN).
 
-- **Core:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build Tool:** [Vite 7](https://vitejs.dev/)
-- **Estilos:** [Tailwind CSS 4](https://tailwindcss.com/)
-- **Enrutamiento:** [React Router 7](https://reactrouter.com/)
-- **Estado & Data Fetching:** [TanStack Query (React Query)](https://tanstack.com/query/latest)
-- **Formularios:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) (Validación)
-- **HTTP Client:** [Axios](https://axios-http.com/)
-- **Notificaciones:** [Sonner](https://sonner.emilkowal.ski/)
+## 🛠️ Stack tecnológico
 
-## 📂 Estructura del Proyecto
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- React Hook Form + Zod
+- Axios
+- Sonner (notificaciones)
+
+## 📁 Estructura del proyecto (resumen)
 
 ```
 src/
-├── components/      # Componentes reutilizables (Button, Card, Input, Navbar, etc.)
-├── context/         # Contextos de React (ej. AuthContext para autenticación)
-├── lib/             # Configuraciones y utilidades (axios, utils)
-├── pages/           # Vistas principales de la aplicación
-│   ├── AdminOrders.tsx    # Panel de Ventas (Admin)
-│   ├── AdminStudents.tsx  # CRM de Alumnas (Admin)
-│   ├── Courses.tsx        # Catálogo de cursos
-│   ├── CourseDetails.tsx  # Detalle de curso
-│   ├── Checkout.tsx       # Proceso de pago
-│   ├── Login.tsx / Register.tsx
-│   └── ...
-├── routes/          # Configuración de rutas (Router.tsx)
+├── components/      # Componentes reutilizables
+├── context/         # Contextos (ej. AuthContext)
+├── lib/             # Configuraciones y utilidades (axios, payment config)
+├── pages/           # Vistas principales
+├── routes/          # Router y rutas protegidas
 └── main.tsx         # Punto de entrada
 ```
 
-## ⚡ Instalación y Uso
+## ⚡ Requisitos
 
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone <url-del-repo>
-    cd blue-7eam-alumns
-    ```
+- Node.js (recomendado >= 18)
+- npm o pnpm
 
-2.  **Instalar dependencias:**
-    ```bash
-    npm install
-    ```
+## 🔧 Instalación y ejecución (local)
 
-3.  **Configurar variables de entorno:**
-    Crea un archivo `.env` en la raíz del proyecto (basado en `.env.example` si existe) con la URL de tu backend:
-    ```env
-    VITE_API_URL=http://localhost:3000/api
-    ```
+1. Clonar el repositorio:
 
-4.  **Iniciar servidor de desarrollo:**
-    ```bash
-    npm run dev
-    ```
-    La aplicación estará disponible en `http://localhost:5173`.
+```bash
+git clone <url-del-repo>
+cd bue-team-alumns
+```
 
-## 📜 Scripts Disponibles
+2. Instalar dependencias:
 
-- `npm run dev`: Inicia el servidor de desarrollo.
-- `npm run build`: Compila la aplicación para producción.
-- `npm run preview`: Vista previa de la build de producción.
-- `npm run lint`: Ejecuta el linter (ESLint) para encontrar errores.
+```bash
+npm install
+```
 
-## 🔐 Autenticación y Roles
+3. Variables de entorno: crea un `.env` en la raíz con al menos:
 
-El sistema maneja dos roles principales:
-- **STUDENT:** Acceso a cursos comprados y perfil.
-- **ADMIN:** Acceso total + Panel de Administración (Ventas y Alumnas).
+```env
+VITE_API_URL=http://localhost:3000/api
+```
 
-La protección de rutas se maneja en `src/routes/Router.tsx` mediante el componente `ProtectedRoute`.
+4. Iniciar en modo desarrollo:
+
+```bash
+npm run dev
+```
+
+La app por defecto estará disponible en `http://localhost:5173`.
+
+## 📜 Scripts útiles
+
+- `npm run dev` — iniciar servidor de desarrollo
+- `npm run build` — compilar para producción
+- `npm run preview` — previsualizar build
+- `npm run lint` — ejecutar ESLint
+
+## 🔁 Notas sobre API / CORS / Cookies
+
+- La variable `VITE_API_URL` apunta al backend (por defecto `http://localhost:3000/api`).
+- En `src/lib/axios.ts` la instancia usa `withCredentials: true` y añade el `Authorization: Bearer <token>` desde `localStorage` para las peticiones.
+- Si usas cookies/credenciales revisa la configuración CORS del backend y asegúrate de que las URLs en Vercel y entorno local coincidan.
+
+##  Despliegue (Vercel)
+
+- Este frontend está pensado para desplegarse en Vercel. El archivo `vercel.json` ya contiene un rewrite para servir `index.html`.
+- En Vercel debes definir la variable de ambiente `VITE_API_URL` apuntando al backend desplegado.
+
+## 🤝 Contribuir
+
+- Abre un issue para discutir cambios grandes.
+- Crea una rama con nombre `feature/<descripción>` o `fix/<descripción>` y abre un PR cuando esté listo.
+
+## 📞 Contacto y mantenimiento
+
+- Repo backend relacionado: `api-blue-team` (actualizaré su README cuando me indiques).
+- Para dudas o ayuda, abre un issue en este repo.
+
+---
