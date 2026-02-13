@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { PAYMENT_METHODS } from '../lib/paymentConfig'
 import type { PaymentMethodKey } from '../lib/paymentConfig'
 import Button from './Button'
+import Loader from './Loader'
 
 // Tipos para TS (ajustados a lo que devuelve Prisma)
 type Order = {
@@ -56,7 +57,8 @@ export default function OrderHistory() {
     navigate(url)
   }
 
-  if (isLoading) return <div className="p-8 text-center text-gray-500">Cargando tus compras...</div>
+  if (isLoading) return <Loader text="Recuperando tus compras..." />
+
   if (isError) return <div className="p-8 text-center text-red-500">Error al cargar historial.</div>
 
   if (!orders || orders.length === 0) {

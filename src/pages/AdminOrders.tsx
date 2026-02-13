@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { api } from '../lib/axios'
+import Loader from '../components/Loader'
 
 interface Order {
   id: string
@@ -73,7 +74,7 @@ export default function AdminOrders() {
     window.open(finalUrl, '_blank', 'noopener,noreferrer')
   }
 
-  if (loading) return <div className="p-10 text-center">Cargando panel...</div>
+  if (loading) return <Loader text="Sincronizando panel de órdenes..." />
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">

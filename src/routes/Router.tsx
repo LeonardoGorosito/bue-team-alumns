@@ -16,12 +16,13 @@ import Terms from '../pages/Terms'
 import ForgotPassword from '../pages/ForgotPassword'
 import ResetPassword from '../pages/ResetPassword'
 import AdminRevenue from '../pages/AdminRevenue'
+import Loader from '../components/Loader'
 
 // ... (El componente AuthGate sigue igual) ...
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
-  if (loading) return <div className="p-6">Cargando...</div>
-  if (user) return <Navigate to="/account" replace />
+if (loading) return <Loader fullScreen text="Verificando sesión..." />  
+if (user) return <Navigate to="/account" replace />
   return <>{children}</> 
 }
 

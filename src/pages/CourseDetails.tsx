@@ -5,6 +5,7 @@ import { fetchCourses, type Course } from './Courses'
 import Button from '../components/Button'
 import ConfirmationModal from '../components/ConfirmationModal'
 import FanslyValidationModal from '../components/FanslyValidationModal'
+import Loader from '../components/Loader'
 
 export default function CourseDetails() {
   const { slug } = useParams<{ slug: string }>()
@@ -36,16 +37,7 @@ export default function CourseDetails() {
     setIsFanslyModalOpen(false)
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando detalles...</p>
-        </div>
-      </div>
-    )
-  }
+if (isLoading) return <Loader fullScreen text="Preparando el contenido..." />
 
   if (isError || !course) {
     return (

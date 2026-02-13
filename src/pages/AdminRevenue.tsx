@@ -4,6 +4,7 @@ import { api } from '../lib/axios'
 import Card from '../components/Card'
 import { Input } from '../components/Input'
 import Button from '../components/Button'
+import Loader from '../components/Loader'
 
 interface Revenue {
   id: string
@@ -53,7 +54,7 @@ export default function AdminRevenue() {
     }, { ars: 0, usd: 0 })
   }, [filteredData])
 
-  if (isLoading) return <div className="p-10 text-center text-gray-500">Cargando finanzas...</div>
+  if (isLoading) return <Loader text="Calculando finanzas..." />
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8">

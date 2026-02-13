@@ -6,6 +6,7 @@ import { api } from '../lib/axios'
 import { useNavigate } from 'react-router-dom'
 import ConfirmationModal from '../components/ConfirmationModal'
 import FanslyValidationModal from '../components/FanslyValidationModal'
+import Loader from '../components/Loader'
 
 export interface Course {
   id: string
@@ -64,7 +65,7 @@ export default function Courses() {
     setIsFanslyModalOpen(false)
   }
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Cargando...</div>
+if (isLoading) return <Loader fullScreen text="Cargando cursos..." />
   if (isError) return <div>Error al cargar los cursos...</div>
 
   return (
