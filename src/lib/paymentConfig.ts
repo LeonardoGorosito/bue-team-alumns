@@ -54,17 +54,19 @@ export const PAYMENT_METHODS = {
     data: {
       email: 'Agust.riera16@gmail.com' // 
     }
-  },
-  PREX: {
-    label: 'Prex a Prex',
-    description: 'Transferencia internacional.',
-    type: 'MANUAL',
-    warning: 'Solo se aceptan transferencias en USD desde otra cuenta Prex.',
-    data: {
-      cuenta: '21333885 (Uruguay)',
-      titular: 'Leonardo Gorosito'
-    }
   }
+  
+  // ,
+  // PREX: {
+  //   label: 'Prex a Prex',
+  //   description: 'Transferencia internacional.',
+  //   type: 'MANUAL',
+  //   warning: 'Solo se aceptan transferencias en USD desde otra cuenta Prex.',
+  //   data: {
+  //     cuenta: '21333885 (Uruguay)',
+  //     titular: 'Leonardo Gorosito'
+  //   }
+  // }
 } as const;
 
 export type PaymentMethodKey = keyof typeof PAYMENT_METHODS;
